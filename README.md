@@ -1,3 +1,12 @@
+# TODOs
+- fix heroku build
+- implement models
+- find out users groups & roles
+- make basic html pages of the system
+- create views 
+- test database connection
+
+
 
 # Documentation
 
