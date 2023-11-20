@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+        {% block content %}
+
+        {% load static %}
+
+        <div class="content">
+            {% for i in object %}
+            <a clss="block-link" href='{{instance.get_absolute_url}}'>
+                <div class="facility-block">
+                    <b>{{ instance.name}}</b><br>
+                    {{ instance.description }}<br>
+                </div>
+            </a>
+            {% endfor %}
+        </div> <!-- End content -->
+
+        {% endblock %}

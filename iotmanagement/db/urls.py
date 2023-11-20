@@ -1,0 +1,42 @@
+from django.urls import path
+from . import views
+
+
+# base views
+urlpatterns = [
+    path('', views.home, name='home'),
+    # path('create/', views.parameter_create, name='parameter_create')
+]
+
+# main app logic mapping
+urlpatterns += [
+    path('systems/', views.systems_list, name='systems_list'),
+    path('systems/<int:pk>/', views.system_detail, name='system_detail'),
+    path('systems/<int:pk>/edit', views.system_edit, name='system_edit'),
+    path('systems/<int:pk>/delete', views.system_delete, name='system_delete'),
+    path('systems/create', views.system_create, name='system_create'),
+    path('systems/<int:pk>/devices', views.devices_list, name='devices_list'),
+    path('devices/', views.devices_list, name='devices_list'),
+    path('devices/<int:pk>/', views.devices_detail, name='devices_detail'),
+    path('devices/<int:pk>/edit', views.devices_edit, name='devices_edit'),
+    path('devices/<int:pk>/delete', views.devices_delete, name='devices_delete'),
+    path('devices/create', views.devices_create, name='devices_create'),
+]
+
+# user access logic
+urlpatterns += [
+    path('signup/', views.signup, name='signup'),
+    path('login/', views.login, name='login'),
+    path('profile/', views.profile, name='profile'),
+    path('profile/edit', views.profile_edit, name='profile_edit'),
+    path('profile/delete', views.profile_delete, name='profile_delete'),
+    path('profile/changepassword', views.change_password, name='change_password'),
+]
+
+# admin logic
+urlpatterns += [
+    path('users/', views.users_list, name='users_list'),
+    path('users/<int:pk>', views.user_detail, name='user_detail'),
+    path('users/<int:pk>/edit', views.user_edit, name='user_edit')
+]
+

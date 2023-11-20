@@ -13,7 +13,8 @@
 ## Prerequesites
 
 ### Heroku
-Install Heroku Command Line Interface: https://devcenter.heroku.com/articles/heroku-cli
+Install Heroku Command Line Interface: https://devcenter.heroku.com/articles/heroku-cli  
+  
 Usage: when in root folder
 ```Bash
 heroku login
@@ -27,7 +28,7 @@ heroku config -s
 heroku pg:push postgres://localhost/iotmanagement postgresql-horizontal-68677
 ```
 
-
+### Virtual Environment
 
 To launch virtual environment:
 ```Bash
@@ -39,3 +40,12 @@ Generate secret key for .env:
 python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
 
+### PostgreSQL
+To reach postgresql in CLI
+```Bash
+psql -U your_username -h localhost -d postgres
+# List of all databases
+\l
+# To connect to local database
+\c db_name
+```

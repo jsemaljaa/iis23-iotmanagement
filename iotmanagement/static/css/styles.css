@@ -1,0 +1,119 @@
+:root {
+    --font-family: 'Arial', sans-serif;
+    --main-bg-color: #333;
+    --text-color: #fff;
+    --header-padding: 10px;
+    --content-padding: 20px;
+    --footer-padding: 20px;
+    --footer-bg-color: #333;
+    --link-color: #fff;
+    --link-hover-color: #ccc;
+    --footer-content-margin: 30px; /* New variable for content margin in the footer */
+}
+
+body {
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: var(--main-bg-color);
+    color: var(--text-color);
+    padding: var(--header-padding);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5em;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin-right: 20px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.content {
+    padding: var(--content-padding);
+}
+
+footer {
+    background-color: var(--footer-bg-color);
+    color: var(--text-color);
+    padding: var(--footer-padding);
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.project-info {
+    margin-left: var(--footer-content-margin); /* New margin for Project Info */
+    margin-right: auto; /* Aligns Project Info to the left */
+}
+
+.authors {
+    text-align: right;
+    margin-left: auto; /* Aligns Authors to the right */
+    margin-right: var(--footer-content-margin); /* New margin for Authors */
+}
+
+.authors ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.authors li {
+    margin-bottom: 10px;
+}
+
+.authors li a {
+    text-decoration: none;
+    color: var(--link-color);
+}
+
+.authors li a:hover {
+    color: var(--link-hover-color);
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 600px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    nav ul li {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    footer {
+        text-align: center;
+    }
+
+    .authors {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
