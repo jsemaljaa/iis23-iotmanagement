@@ -5,6 +5,35 @@ from django.urls import reverse
 # Create your models here.
 
 
+class UserProfile(models.Model):
+    ROLE_CHOICES = [
+        ('admin', 'Admin'),
+        ('creator', 'Creator'),
+        ('user', 'User'),
+        ('broker', 'Broker'),
+        ('visitor', 'Visitor'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+    surname = models.CharField(max_length=50)
+    location = models.CharField(max_length=100)
+    email = models.EmailField()
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+
+    def __str__(self):
+        return f"{self.name} {self.surname} ({self.role})"
+
+    def is_admin(self):
+        return self.role == 'admin'
+
+    def is_creator(self):
+        return self.role == 'creator'
+
+    def is_broker(self):
+        return self.role == 'broker'
+
+
 class Parameter(models.Model):
     name = models.CharField(max_length=16)
     possible_values = models.CharField(max_length=16)
@@ -16,18 +45,39 @@ class Device(models.Model):
     device_type = models.ManyToManyField(Parameter, related_name='device_type')
     description = models.TextField()
     alias = models.CharField(max_length=8)
-
+    created_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='created_by_user', default=1)
 
 
 class System(models.Model):
     name = models.CharField(max_length=16)
     description = models.TextField()
-    admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='system_admin')
-    users = models.ManyToManyField(User, related_name='system_users', blank=True)
-    devices = models.ManyToManyField(Device, related_name='system_devices', blank=True);
+    admin = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='system_admin')
+
+    def __str__(self):
+        return f"{self.name} {self.admin.name} ({self.role})"
 
     def get_absolute_url(self):
-        return reverse('system_detail', args=[str(self.id)])
+        return reverse('system_detail', args=[str(self.pk)])
+
+
+class SystemDevices(models.Model):
+    system = models.ForeignKey(System, on_delete=models.CASCADE, related_name='system_with_devices')
+    device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='devices_in_system')
+
+
+class SystemUsers(models.Model):
+    system = models.ForeignKey(System, on_delete=models.CASCADE, related_name='system_with_users')
+    user = models.ForeignKey(System, on_delete=models.CASCADE, related_name='users_in_system')
+
+
+class UserDevices(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_with_devices')
+    device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='devices_from_user')
+
+
+class UserSystems(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_with_systems')
+    system = models.ForeignKey(System, on_delete=models.CASCADE, related_name='systems_from_user')
 
 # class KPI(models.Model):
 #     class Function(models.TextChoices):
