@@ -27,9 +27,13 @@
         </div>
     {% endif %}
 {% endfor %}
+    <p></p>
 
+  <a href="{% url 'change_password' %}">Change Password</a>
+    <p></p>
 
     <button type="submit">Save Changes</button>
   </form>
+    <p></p>
   <a href="{% url 'profile' %}">Back to your profile</a>
 {% endblock %}

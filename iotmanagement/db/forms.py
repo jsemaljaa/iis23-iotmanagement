@@ -1,15 +1,11 @@
 from django import forms
 from . import models
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 
-from django.core.exceptions import ValidationError
-from django.contrib.auth.password_validation import (
-    CommonPasswordValidator,
-    MinimumLengthValidator,
-    NumericPasswordValidator,
-    UserAttributeSimilarityValidator,
-)
+
+class ChangePasswordForm(PasswordChangeForm):
+    pass
 
 
 class ParameterForm(forms.ModelForm):

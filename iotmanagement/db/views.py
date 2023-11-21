@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
-
+from django.contrib import messages
 
 
 from .forms import *
@@ -53,8 +53,17 @@ def user_detail(request, pk):
     return render(request, 'user_detail.html', {'user_to_display': user_to_display})
 
 
+@login_required
 def change_password(request):
-    pass
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('profile')  # Change 'profile' to the desired page after password change
+    else:
+        form = ChangePasswordForm(request.user)
+    return render(request, 'change_password.html', {'form': form})
 
 
 def profile_delete(request):
