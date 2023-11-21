@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Editing user: {{ user.username }}</h2>
+  <form method="post" action="{% url 'user_edit' user.id %}">
+    {% csrf_token %}
+
+    <label for="name">Name:</label>
+    <input type="text" name="name" value="{{ user.userprofile.name }}">
+
+    <label for="surname">Surname:</label>
+    <input type="text" name="surname" value="{{ user.userprofile.surname }}">
+
+    <label for="location">Location:</label>
+    <input type="text" name="location" value="{{ user.userprofile.location }}">
+
+    <label for="email">Email:</label>
+    <input type="email" name="email" value="{{ user.userprofile.email }}">
+
+    <label for="role">Role:</label>
+    <select name="role">
+      {% for role, role_display in user.userprofile.ROLE_CHOICES %}
+        <option value="{{ role }}" {% if user.userprofile.role == role %}selected{% endif %}>{{ role_display }}</option>
+      {% endfor %}
+    </select>
+
+    <button type="submit">Save Changes</button>
+  </form>
+  <a href="{% url 'admin_dashboard' %}">Back to Admin Dashboard</a>
+{% endblock %}

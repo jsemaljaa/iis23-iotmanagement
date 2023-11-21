@@ -1,14 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap");
+
 :root {
-    --font-family: 'Arial', sans-serif;
-    --main-bg-color: #333;
+    --font-family: "Poppins", sans-serif;
+    --main-bg-color: #f4f4f4;
     --text-color: #fff;
     --header-padding: 10px;
     --content-padding: 20px;
     --footer-padding: 20px;
-    --footer-bg-color: #333;
     --link-color: #fff;
     --link-hover-color: #ccc;
-    --footer-content-margin: 30px; /* New variable for content margin in the footer */
+    --footer-content-margin: 30px;
+    --background-color-2: #181818;
+    --unique-color: #428bca;
 }
 
 body {
@@ -17,8 +20,33 @@ body {
     padding: 0;
 }
 
+section {
+    margin-bottom: 20px;
+}
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.card {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card h4 {
+    margin-bottom: 5px;
+}
+
+.card a {
+    margin-right: 10px;
+}
+
 header {
-    background-color: var(--main-bg-color);
+    background-color: var(--background-color-2);
     color: var(--text-color);
     padding: var(--header-padding);
     display: flex;
@@ -28,6 +56,10 @@ header {
 
 .logo {
     font-size: 1.5em;
+}
+
+.logo a:hover {
+    text-decoration: none;
 }
 
 nav ul {
@@ -48,46 +80,104 @@ nav ul li a {
 
 .content {
     padding: var(--content-padding);
+    max-width: 430px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 50px auto 0;
+    text-align: center;
 }
 
+/* FOOTER SECTION */
 footer {
-    background-color: var(--footer-bg-color);
+    padding: 2rem 1rem;
+    background-color: var(--background-color-2);
     color: var(--text-color);
-    padding: var(--footer-padding);
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+}
+
+.footer-content {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-.project-info {
-    margin-left: var(--footer-content-margin); /* New margin for Project Info */
-    margin-right: auto; /* Aligns Project Info to the left */
+.footer-content ul {
+    display: flex;
+    gap: 1.5rem;
 }
 
-.authors {
-    text-align: right;
-    margin-left: auto; /* Aligns Authors to the right */
-    margin-right: var(--footer-content-margin); /* New margin for Authors */
+.footer-content p {
+    margin-top: 1rem;
 }
 
-.authors ul {
-    list-style-type: none;
-    padding: 0;
+.footer-content ul li {
+    transition: all .2s linear;
 }
 
-.authors li {
+.footer-content ul li:hover {
+    transform: scale(1.2);
+}
+
+.footer-content ul li a {
+    font-size: 1.5rem;
+    transition: all .2s linear;
+}
+
+.footer-content ul li a:hover {
+    color: var(--unique-color);
+}
+
+/* END FOOTER */
+
+h2 {
+    text-align: center;
+    color: #333;
+}
+
+form {
+    margin-top: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    width: 100%;
+    padding: 8px;
     margin-bottom: 10px;
+    box-sizing: border-box;
 }
 
-.authors li a {
+button {
+    background-color: #4caf50;
+    color: #fff;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+a {
+    color: var(--unique-color);
     text-decoration: none;
-    color: var(--link-color);
 }
 
-.authors li a:hover {
-    color: var(--link-hover-color);
+a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    color: #d9534f;
+    margin-top: 5px;
 }
 
 /* Responsive Styles */
@@ -115,5 +205,32 @@ footer {
         text-align: center;
         margin-left: auto;
         margin-right: auto;
+    }
+
+    .container {
+        width: 100%;
+        margin-top: 20px;
+        box-shadow: none;
+    }
+
+    /* Additional adjustments for small screens */
+    .card-container {
+        gap: 10px;
+    }
+}
+
+/* Responsive Styles for Medium Screens */
+@media screen and (min-width: 601px) and (max-width: 1024px) {
+    /* Adjustments for medium screens */
+    .content {
+        max-width: 600px;
+    }
+}
+
+/* Responsive Styles for Large Screens */
+@media screen and (min-width: 1025px) {
+    /* Adjustments for large screens */
+    .content {
+        max-width: 800px;
     }
 }

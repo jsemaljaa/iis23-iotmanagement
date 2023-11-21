@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <h2>Admin Dashboard</h2>
+
+  <!-- Users Section -->
+  <section>
+    <h3>Users</h3>
+    <div class="card-container">
+      {% for user in users %}
+        <div class="card">
+          <h4>{{ user.username }}</h4>
+          {% if user.userprofile.is_admin %}
+            <p>(Admin)</p>
+          {% endif %}
+          <a href="{% url 'user_edit' user.id %}">Edit</a>
+          <a href="{% url 'user_detail' user.id %}">Details</a>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Systems Section -->
+  <section>
+    <h3>Systems</h3>
+    <div class="card-container">
+      {% for system in systems %}
+        <div class="card">
+          <h4>{{ system.name }}</h4>
+          <p>{{ system.description }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Devices Section -->
+  <section>
+    <h3>Devices</h3>
+    <div class="card-container">
+      {% for device in devices %}
+        <div class="card">
+          <h4>{{ device.name }}</h4>
+          <p>{{ device.description }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+{% endblock %}

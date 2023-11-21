@@ -6,33 +6,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Your Home Systems{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 </head>
 <body>
 
 <header>
     <div class="logo">
-        <h1>Your Home Systems</h1>
+        <h1><a href="{% url 'home' %}">Your Home Systems</a></h1>
     </div>
     <nav>
         <ul>
             {% if user.is_authenticated %}
-                {% if user.is_staff %}
-                    <li><a href="#">Admin Dashboard</a></li>
-                {% else %}
-                    <li><a href="#">My Systems</a></li>
+                {% if user.userprofile.is_admin %}
+                    <li><a href="{% url 'admin_dashboard' %}">Admin Dashboard</a></li>
                 {% endif %}
-                <li><a href="#">Logout</a></li>
-            {% comment %}
-                <li><a href="{% url 'logout' %}">Logout</a></li>
-            {% endcomment %}
-            {% else %}
-            {% comment %}
-                <li><a href="{% url 'register' %}">Register</a></li>
-                <li><a href="{% url 'login' %}">Login</a></li>
-            {% endcomment %}
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+                <li><a href="#">Devices</a></li>
                 <li><a href="#">Systems</a></li>
-                <li><a href="#">Login</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            {% else %}
+                <li><a href="#">Systems</a></li>
+                <li><a href="{% url 'login' %}">Login</a></li>
             {% endif %}
         </ul>
     </nav>
@@ -42,16 +36,16 @@
     {% block content %}{% endblock %}
 </div>
 
-<footer>
-    <p class="project-info">IIS project 2023</p>
-    <div class="authors">
-        <p>Authors:</p>
-        <ul>
-            <li><a href="mailto:xvinog00@vutbr.com">Alina Vinogradova (xvinog00)</a></li>
-            <li><a href="mailto:xmazur08@vutbr.com">Maryia Mazurava (xmazur08)</a></li>
-        </ul>
-    </div>
-</footer>
+
+
+ <footer>
+        <div class="footer-content">
+            <p>For IIS 2023 project</p>
+            <p>Designed & Built by Alina Vinogradova & Maryia Mazurava</p>
+            <p class="footer-mail">xvinog00@vutbr.cz</p>
+            <p class="footer-mail">xmazur08@vutbr.cz</p>
+        </div>
+ </footer>
 
 
 </body>

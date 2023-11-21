@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.conf import settings
 
 # Create your models here.
 
@@ -14,24 +15,24 @@ class UserProfile(models.Model):
         ('visitor', 'Visitor'),
     ]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
     location = models.CharField(max_length=100)
     email = models.EmailField()
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
 
     def __str__(self):
         return f"{self.name} {self.surname} ({self.role})"
 
     def is_admin(self):
-        return self.role == 'admin'
+        return self.role.lower() == 'admin'
 
     def is_creator(self):
-        return self.role == 'creator'
+        return self.role.lower() == 'creator'
 
     def is_broker(self):
-        return self.role == 'broker'
+        return self.role.lower() == 'broker'
 
 
 class Parameter(models.Model):

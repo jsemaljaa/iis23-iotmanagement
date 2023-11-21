@@ -27,6 +27,7 @@ urlpatterns += [
 urlpatterns += [
     path('signup/', views.signup, name='signup'),
     path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
     path('profile/', views.profile, name='profile'),
     path('profile/edit', views.profile_edit, name='profile_edit'),
     path('profile/delete', views.profile_delete, name='profile_delete'),
@@ -35,6 +36,7 @@ urlpatterns += [
 
 # admin logic
 urlpatterns += [
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('users/', views.users_list, name='users_list'),
     path('users/<int:pk>', views.user_detail, name='user_detail'),
     path('users/<int:pk>/edit', views.user_edit, name='user_edit')

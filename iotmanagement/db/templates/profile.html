@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>User Profile</h1>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Name:</strong> {{ user.userprofile.name }}</p>
+    <p><strong>Surname:</strong> {{ user.userprofile.surname }}</p>
+    <p><strong>Email:</strong> {{ user.userprofile.email }}</p>
+    <p><strong>Location:</strong> {{ user.userprofile.location }}</p>
+    <p><strong>Role:</strong> {{ user.userprofile.get_role_display }}</p>
+
+    <!-- Add more fields as needed -->
+
+    <p><a href="{% url 'profile_edit' %}">Edit Profile</a></p>
+{% endblock %}
