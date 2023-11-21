@@ -22,7 +22,15 @@ def admin_dashboard(request):
     users = User.objects.all()
     devices = models.Device.objects.all()
     systems = models.System.objects.all()
-    return render(request, 'admin_dashboard.html', {'users': users, 'devices': devices, 'systems': systems})
+    request.session['previous_page'] = request.path
+
+    context = {
+        'users': users,
+        'devices': devices,
+        'systems': systems
+    }
+
+    return render(request, 'admin_dashboard.html', context)
 
 
 @user_passes_test(admin_required, login_url='login')
@@ -35,7 +43,12 @@ def user_edit(request, pk):
             return redirect('user_detail', pk=pk)
     else:
         form = UserProfileEditForm(instance=user_to_edit.userprofile)
-    return render(request, 'user_edit.html', {'form': form, 'user_to_edit': user_to_edit})
+
+    context = {
+        'form': form,
+        'user_to_edit': user_to_edit
+    }
+    return render(request, 'user_edit.html', context)
 
 
 @user_passes_test(admin_required, login_url='login')
@@ -43,14 +56,21 @@ def user_delete(request, pk):
     user_to_delete = get_object_or_404(User, pk=pk)
     if request.method == 'POST':
         user_to_delete.delete()
-        return redirect('admin_dashboard')  # Redirect to the admin dashboard or any other page
-    return render(request, 'user_delete_confirm.html', {'user_to_delete': user_to_delete})
+        return redirect('admin_dashboard')
+
+    context = {
+        'user_to_delete': user_to_delete
+    }
+    return render(request, 'user_delete_confirm.html', context)
 
 
 @user_passes_test(admin_required, login_url='login')
 def user_detail(request, pk):
     user_to_display = get_object_or_404(User, pk=pk)
-    return render(request, 'user_detail.html', {'user_to_display': user_to_display})
+    context = {
+        'user_to_display': user_to_display
+    }
+    return render(request, 'user_detail.html', context)
 
 
 @login_required
@@ -60,10 +80,14 @@ def change_password(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Your password was successfully updated!')
-            return redirect('profile')  # Change 'profile' to the desired page after password change
+            return redirect('profile')
     else:
         form = ChangePasswordForm(request.user)
-    return render(request, 'change_password.html', {'form': form})
+
+    context = {
+        'form': form
+    }
+    return render(request, 'change_password.html', context)
 
 
 def profile_delete(request):
@@ -82,7 +106,11 @@ def profile_edit(request):
     else:
         form = UserProfileEditForm(instance=user_profile)
 
-    return render(request, 'profile_edit.html', {'form': form})
+    context = {
+        'form': form
+    }
+
+    return render(request, 'profile_edit.html', context)
 
 
 @login_required
@@ -90,7 +118,12 @@ def profile(request):
     user = request.user
     user_profile, created = models.UserProfile.objects.get_or_create(user=user)
 
-    return render(request, 'profile.html', {'user': user, 'user_profile': user_profile})
+    context = {
+        'user': user,
+        'user_profile': user_profile
+    }
+
+    return render(request, 'profile.html', context)
 
 
 def login(request):
@@ -103,7 +136,11 @@ def login(request):
     else:
         form = AuthenticationForm()
 
-    return render(request, 'login.html', {'form': form})
+    context = {
+        'form': form
+    }
+
+    return render(request, 'login.html', context)
 
 
 @login_required
@@ -129,7 +166,11 @@ def signup(request):
     else:
         form = UserProfileForm()
 
-    return render(request, 'signup.html', {'user_profile_form': form})
+    context = {
+        'user_profile_form': form
+    }
+
+    return render(request, 'signup.html', context)
 
 
 def devices_create(request):
@@ -164,13 +205,24 @@ def system_create(request):
             return redirect('systems_list')
     else:
         form = CreateHomeForm()
-    return render(request, 'system_create.html', {'form': form})
+
+    context = {
+        'form': form
+    }
+
+    return render(request, 'system_create.html', context)
 
 
 def systems_list(request):
     systems = models.System.objects.all()  # This should retrieve all System objects from the database
-    context = {'systems': systems}
+    request.session['previous_page'] = request.path
+
+    context = {
+        'systems': systems
+    }
+
     return render(request, 'systems_list.html', context)
+
 
 @login_required()
 def system_delete(request, pk):
@@ -178,8 +230,12 @@ def system_delete(request, pk):
     if request.method == 'POST':  # Confirm that the form has been submitted
         system.delete()
         return redirect('systems_list')  # Redirect to the systems list page after deletion
-    return render(request, 'system_confirm_delete.html', {'system': system})
 
+    context = {
+        'system': system
+    }
+
+    return render(request, 'system_confirm_delete.html', context)
 
 
 def system_detail(request):
@@ -193,11 +249,16 @@ def system_edit(request, pk):
         form = SystemForm(request.POST, instance=system)
         if form.is_valid():
             form.save()
-            return redirect('systems_list')  # Redirect to the list view
+            previous_page = request.session.get('previous_page', '/')
+            return redirect(previous_page)  # Redirect to the list view
     else:
         form = SystemForm(instance=system)
 
-    return render(request, 'system_edit.html', {'form': form})
+    context = {
+        'form': form
+    }
+
+    return render(request, 'system_edit.html', context)
 
 
 def parameter_create(request):
@@ -209,7 +270,11 @@ def parameter_create(request):
     else:
         form = ParameterForm()
 
-    return render(request, 'parameter.html', {'form': form})
+    context = {
+        'form': form
+    }
+
+    return render(request, 'parameter.html', context)
 
 
 def home(request):

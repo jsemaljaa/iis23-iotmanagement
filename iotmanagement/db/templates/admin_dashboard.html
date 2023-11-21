@@ -27,7 +27,8 @@
       {% for system in systems %}
         <div class="card">
           <h4>{{ system.name }}</h4>
-          <p>{{ system.description }}</p>
+          <a href="{% url 'system_edit' pk=system.pk %}">Edit</a>
+          <a href="{% url 'system_delete' pk=system.pk %}">Delete</a>
         </div>
       {% endfor %}
     </div>
