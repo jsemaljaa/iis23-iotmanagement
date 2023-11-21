@@ -152,14 +152,15 @@ def devices_edit(request):
     pass
 
 
+@login_required
 def system_create(request):
     if request.method == 'POST':
         form = CreateHomeForm(request.POST)
         if form.is_valid():
-            system = form.save(commit=False)
-            system.number_of_devices = 0  # Set default number of devices
-            system.number_of_users = 0    # Set default number of users
-            system.save()
+            new_system = form.save(commit=False)
+            # Assuming you want to associate the home with the user
+            new_system.owner = request.user
+            new_system.save()
             return redirect('systems_list')
     else:
         form = CreateHomeForm()
@@ -171,7 +172,7 @@ def systems_list(request):
     context = {'systems': systems}
     return render(request, 'systems_list.html', context)
 
-
+@login_required()
 def system_delete(request, pk):
     system = get_object_or_404(models.System, pk=pk)
     if request.method == 'POST':  # Confirm that the form has been submitted
@@ -185,15 +186,17 @@ def system_detail(request):
     pass
 
 
-def system_edit(request, pk):  # 'pk' parameter must be expected here
+@login_required()
+def system_edit(request, pk):
     system = get_object_or_404(models.System, pk=pk)
     if request.method == 'POST':
-        form = CreateHomeForm(request.POST, instance=system)
+        form = SystemForm(request.POST, instance=system)
         if form.is_valid():
             form.save()
-            return redirect('systems_list')
+            return redirect('systems_list')  # Redirect to the list view
     else:
-        form = CreateHomeForm(instance=system)
+        form = SystemForm(instance=system)
+
     return render(request, 'system_edit.html', {'form': form})
 
 

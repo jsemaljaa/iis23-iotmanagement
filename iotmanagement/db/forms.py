@@ -54,5 +54,11 @@ class CreateHomeForm(forms.ModelForm):
     class Meta:
         model = models.System
         fields = ['name', 'description']  # Include description if you want it during creation
-        # Replace the fields with the actual field names of your System model
+
+class SystemForm(forms.ModelForm):
+    class Meta:
+        model = models.System
+        fields = ['name', 'description', 'number_of_devices', 'number_of_users']
+        # Include other fields you want to be editable
+# Replace the fields with the actual field names of your System model
 
