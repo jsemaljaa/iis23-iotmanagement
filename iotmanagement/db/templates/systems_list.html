@@ -1,18 +1,95 @@
 {% extends "base.html" %}
 
-        {% block content %}
+{% block content %}
+<div class="container">
+    <h1>Smart Home Management</h1>
+    <div class="search-bar">
+        <input type="text" placeholder="Search by home name" />
+    </div>
+    <div class="filters">
+        <!-- Filters can go here -->
+    </div>
+    <div class="homes-grid">
+        <h1>List of Home Systems</h1>
+        {% for system in systems %}
+        <div class="home-card">
+            <h2>{{ system.name }}</h2>
+            <!-- Add links to edit the home -->
+            <a href="{% url 'system_edit' pk=system.pk %}">Edit</a>
+            <!-- Add a delete button/link -->
+            <form action="{% url 'system_delete' pk=system.pk %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Delete</button>
+            </form>
+    </div>
+    {% empty %}
+    <p>No homes found.</p>
+    {% endfor %}
+    </div>
+    <div class="create-home-form">
+        <h2>Create New System</h2>
+        <form method="post" action="{% url 'system_create' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="homeName">Home Name:</label>
+                <input type="text" id="homeName" name="home_name" required>
+            </div>
+            <!-- Add additional fields as necessary -->
+            <button type="submit">Create</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
 
-        {% load static %}
+<style>
+    .container {
+        width: 80%;
+        margin: auto;
+    }
 
-        <div class="content">
-            {% for i in object %}
-            <a clss="block-link" href='{{instance.get_absolute_url}}'>
-                <div class="facility-block">
-                    <b>{{ instance.name}}</b><br>
-                    {{ instance.description }}<br>
-                </div>
-            </a>
-            {% endfor %}
-        </div> <!-- End content -->
+    .homes-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 20px;
+    }
 
-        {% endblock %}
+    .home-card {
+        width: calc(25% - 20px);
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        background: #f9f9f9;
+    }
+
+    .create-home-form {
+        margin-top: 40px;
+        padding: 20px;
+        background: #eaeaea;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+    }
+
+    button {
+        padding: 10px 15px;
+        background: #333;
+        color: white;
+        border: none;
+    }
+
+    button:hover {
+        background: #555;
+    }
+</style>

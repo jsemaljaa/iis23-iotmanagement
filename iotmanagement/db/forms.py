@@ -52,9 +52,11 @@ class UserProfileEditForm(forms.ModelForm):
         super(UserProfileEditForm, self).__init__(*args, **kwargs)
         for field in self.fields.values():
             field.required = False
-        # if 'instance' in kwargs and kwargs['instance'].is_admin():
-        #     # Allow modification of the 'role' field if the user is an admin
-        #     self.fields['role'].widget.attrs['disabled'] = False
-        # else:
-        #     # Disable the 'role' field for non-admin users
-        #     self.fields['role'].widget.attrs['disabled'] = True
+        
+        
+class CreateHomeForm(forms.ModelForm):
+    class Meta:
+        model = models.System
+        fields = ['name', 'description']  # Include description if you want it during creation
+        # Replace the fields with the actual field names of your System model
+
