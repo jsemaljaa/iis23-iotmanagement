@@ -35,7 +35,6 @@ ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'iot-management-805a6899df
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

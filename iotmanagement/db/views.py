@@ -3,16 +3,21 @@ from django.urls import reverse
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
-from .decorators import admin_required
+
 
 
 from .forms import *
 from . import models
 
+
+# Misc helpers for views
+def admin_required(user):
+    return user.is_authenticated and user.userprofile.is_admin
+
 # Create your views here.
 
 
-@admin_required
+@user_passes_test(admin_required, login_url='login')
 def admin_dashboard(request):
     users = User.objects.all()
     devices = models.Device.objects.all()
@@ -20,27 +25,32 @@ def admin_dashboard(request):
     return render(request, 'admin_dashboard.html', {'users': users, 'devices': devices, 'systems': systems})
 
 
-@admin_required
+@user_passes_test(admin_required, login_url='login')
 def user_edit(request, pk):
-    user = get_object_or_404(User, pk=pk)
+    user_to_edit = get_object_or_404(User, pk=pk)
     if request.method == 'POST':
-        form = UserProfileEditForm(request.POST, instance=user.userprofile)
+        form = UserProfileEditForm(request.POST, instance=user_to_edit.userprofile)
         if form.is_valid():
             form.save()
             return redirect('user_detail', pk=pk)
     else:
-        form = UserProfileEditForm(instance=user.userprofile)
-    return render(request, 'user_edit.html', {'form': form, 'user': user})
+        form = UserProfileEditForm(instance=user_to_edit.userprofile)
+    return render(request, 'user_edit.html', {'form': form, 'user_to_edit': user_to_edit})
 
 
+@user_passes_test(admin_required, login_url='login')
+def user_delete(request, pk):
+    user_to_delete = get_object_or_404(User, pk=pk)
+    if request.method == 'POST':
+        user_to_delete.delete()
+        return redirect('admin_dashboard')  # Redirect to the admin dashboard or any other page
+    return render(request, 'user_delete_confirm.html', {'user_to_delete': user_to_delete})
 
-def users_list(request):
-    pass
 
-@admin_required
+@user_passes_test(admin_required, login_url='login')
 def user_detail(request, pk):
-    user = get_object_or_404(User, pk=pk)
-    return render(request, 'user_detail.html', {'user': user})
+    user_to_display = get_object_or_404(User, pk=pk)
+    return render(request, 'user_detail.html', {'user_to_display': user_to_display})
 
 
 def change_password(request):
@@ -76,7 +86,7 @@ def profile(request):
 
 def login(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, request.POST)
+        form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
@@ -87,6 +97,7 @@ def login(request):
     return render(request, 'login.html', {'form': form})
 
 
+@login_required
 def logout(request):
     auth_logout(request)
     return redirect('home')

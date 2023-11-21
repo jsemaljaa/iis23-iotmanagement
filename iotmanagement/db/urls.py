@@ -37,7 +37,7 @@ urlpatterns += [
 # admin logic
 urlpatterns += [
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
-    path('users/', views.users_list, name='users_list'),
-    path('users/<int:pk>', views.user_detail, name='user_detail'),
-    path('users/<int:pk>/edit', views.user_edit, name='user_edit')
+    path('admin/users/<int:pk>', views.user_detail, name='user_detail'),
+    path('admin/users/<int:pk>/edit', views.user_edit, name='user_edit'),
+    path('admin/users/<int:pk>/delete/', views.user_delete, name='user_delete'),
 ]
