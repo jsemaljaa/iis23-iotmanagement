@@ -1,19 +1,12 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
 <div class="container">
-    <h1>Create a New Home System</h1>
-    <form method="post" action="{% url 'system_create' %}">
+    <h1>Edit Home System</h1>
+    <form method="post">
         {% csrf_token %}
-        <div class="form-group">
-            <label for="id_name">Home Name:</label>
-            {{ form.name }}
-        </div>
-        <div class="form-group">
-            <label for="id_description">Description:</label>
-            {{ form.description }}
-        </div>
-        <button type="submit" class="btn btn-primary">Create</button>
+        {{ form.as_p }}
+        <button type="submit">Save changes</button>
     </form>
 </div>
 {% endblock %}

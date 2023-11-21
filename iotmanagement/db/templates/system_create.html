@@ -1,14 +1,16 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-    <h1>Create a New Home System</h1>
-    <!-- system_create.html -->
-    <form method="post" action="{% url 'system_create' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Create</button>
-    </form>
-
-</div>
+  {% if user.is_authenticated %}
+    <div class="container">
+        <h1>Create a New Home System</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Create</button>
+        </form>
+    </div>
+  {% else %}
+    <p>You must be logged in to create a home system.</p>
+  {% endif %}
 {% endblock %}

@@ -57,3 +57,9 @@ class CreateHomeForm(forms.ModelForm):
             'name',
             # 'description'
         ]
+
+
+class SystemForm(forms.ModelForm):
+    class Meta:
+        model = models.System
+        fields = ['name', 'description', 'number_of_devices', 'number_of_users']
