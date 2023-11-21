@@ -44,3 +44,13 @@ psql -U your_username -h localhost -d postgres
 # To connect to local database
 \c db_name
 ```
+
+### Django
+To execute script in Django shell
+```Bash
+python ./manage.py shell < myscript.py
+```
+To run the server for whole local network
+```Bash
+python manage.py runserver 0.0.0.0:8000
+```

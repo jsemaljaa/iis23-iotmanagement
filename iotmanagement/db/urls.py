@@ -11,18 +11,19 @@ urlpatterns = [
 # main app logic mapping
 urlpatterns += [
     path('systems/', views.systems_list, name='systems_list'),
-    path('systems/<int:pk>/', views.system_detail, name='system_detail'),
+    path('systems/<int:pk>/detail', views.system_detail, name='system_detail'),
     path('systems/<int:pk>/edit', views.system_edit, name='system_edit'),
     path('systems/<int:pk>/delete', views.system_delete, name='system_delete'),
+    path('systems/<int:pk>/invite', views.system_invite, name='system_invite'),
+    path('systems/<int:system_id>/remove/<int:user_id>', views.system_remove_user, name='system_remove_user'),
     path('systems/create', views.system_create, name='system_create'),
     path('systems/<int:pk>/devices', views.devices_list, name='devices_list'),
     path('devices/', views.devices_list, name='devices_list'),
     path('devices/<int:pk>/', views.devices_detail, name='devices_detail'),
     path('devices/<int:pk>/edit', views.devices_edit, name='devices_edit'),
     path('devices/<int:pk>/delete', views.devices_delete, name='devices_delete'),
-    path('devices/create', views.devices_create, name='devices_create'),
+    path('devices/create/', views.devices_create, name='devices_create'),
 ]
-
 # user access logic
 urlpatterns += [
     path('signup/', views.signup, name='signup'),

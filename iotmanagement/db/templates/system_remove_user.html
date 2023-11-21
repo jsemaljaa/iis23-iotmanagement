@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Confirm Deletion</h2>
+    <p>Are you sure you want to remove {{ user.username }} from the system {{ system.name }}?</p>
+
+    <form method="post" action="{% url 'system_remove_user' system.id user.id %}">
+        {% csrf_token %}
+        <button type="submit">Yes, remove user</button>
+    </form>
+    <a href="{% url 'system_edit' pk=system.id %}">Cancel</a>
+</div>
+{% endblock %}

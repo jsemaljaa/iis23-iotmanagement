@@ -5,8 +5,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Your Home Systems{% endblock %}</title>
+    <title>{% block title %}Your IOT{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
 </head>
 <body>
 
@@ -22,7 +23,7 @@
                 {% endif %}
                 <li>Logged in as {{ user.username }}</li>
                 <li><a href="{% url 'profile' %}">Profile</a></li>
-                <li><a href="#">Devices</a></li>
+                <li><a href="{% url 'devices_list' %}">Devices</a></li>
                 <li><a href="{% url 'systems_list' %}">Systems</a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
             {% else %}

@@ -2,7 +2,32 @@
 
 {% block content %}
 <div class="container">
-    <h1>Edit Home System</h1>
+<h1>Edit System: {{ system.name }}</h1>
+
+    <!-- Invite Users Form -->
+    <div class="invite-users-form">
+        <h2>Invite Users</h2>
+        <form method="post" action="{% url 'system_invite' pk=system.pk %}">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="User email" required>
+            <button type="submit">Invite</button>
+        </form>
+    </div>
+    <!-- List of Users -->
+    <div class="users-list">
+        <h2>Users</h2>
+        {% for user in system.users.all %}
+            <div class="user">
+                <span>{{ user.username }}</span>
+<!--                <form method="post" action="{% url 'system_remove_user' system.pk user.id %}">-->
+<!--                    {% csrf_token %}-->
+<!--                    <button type="submit">Remove</button>-->
+                </form>
+            </div>
+        {% empty %}
+            <p>No users.</p>
+        {% endfor %}
+    </div>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}

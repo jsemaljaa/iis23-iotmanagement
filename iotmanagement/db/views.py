@@ -1,3 +1,4 @@
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth import login as auth_login, logout as auth_logout
@@ -30,7 +31,7 @@ def admin_dashboard(request):
         'systems': systems
     }
 
-    return render(request, 'admin_dashboard.html', context)
+    return render(request, 'admin/admin_dashboard.html', context)
 
 
 @user_passes_test(admin_required, login_url='login')
@@ -48,7 +49,7 @@ def user_edit(request, pk):
         'form': form,
         'user_to_edit': user_to_edit
     }
-    return render(request, 'user_edit.html', context)
+    return render(request, 'admin/user_edit.html', context)
 
 
 @user_passes_test(admin_required, login_url='login')
@@ -61,7 +62,7 @@ def user_delete(request, pk):
     context = {
         'user_to_delete': user_to_delete
     }
-    return render(request, 'user_delete_confirm.html', context)
+    return render(request, 'admin/user_delete_confirm.html', context)
 
 
 @user_passes_test(admin_required, login_url='login')
@@ -70,7 +71,7 @@ def user_detail(request, pk):
     context = {
         'user_to_display': user_to_display
     }
-    return render(request, 'user_detail.html', context)
+    return render(request, 'admin/user_detail.html', context)
 
 
 @login_required
@@ -87,7 +88,7 @@ def change_password(request):
     context = {
         'form': form
     }
-    return render(request, 'change_password.html', context)
+    return render(request, 'profile/change_password.html', context)
 
 
 @login_required
@@ -104,7 +105,7 @@ def profile_delete(request):
         'user': user_profile
     }
 
-    return render(request, 'profile_delete_confirm.html', context)
+    return render(request, 'profile/profile_delete_confirm.html', context)
 
 
 @login_required
@@ -123,7 +124,7 @@ def profile_edit(request):
         'form': form
     }
 
-    return render(request, 'profile_edit.html', context)
+    return render(request, 'profile/profile_edit.html', context)
 
 
 @login_required
@@ -136,7 +137,7 @@ def profile(request):
         'user_profile': user_profile
     }
 
-    return render(request, 'profile.html', context)
+    return render(request, 'profile/profile.html', context)
 
 
 def login(request):
@@ -187,11 +188,43 @@ def signup(request):
 
 
 def devices_create(request):
-    pass
+    if request.method == 'POST':
+        device_form = DeviceForm(request.POST)
+        parameter_formset = DeviceParameterFormSet(request.POST, prefix='parameters')
+
+        if device_form.is_valid() and parameter_formset.is_valid():
+            device = device_form.save(commit=False)
+            device.created_by = request.user.userprofile
+            device.save()
+
+            for form in parameter_formset:
+                parameter = form.cleaned_data.get('parameter')
+                value = form.cleaned_data.get('value')
+                models.DeviceParameter.objects.create(device=device, parameter=parameter, value=value)
+
+            return redirect('device_list')
+    else:
+        device_form = DeviceForm()
+        parameter_formset = DeviceParameterFormSet(prefix='parameters')
+
+    context = {
+        'device_form': device_form,
+        'parameter_formset': parameter_formset
+    }
+
+    return render(request, 'device/devices_create.html', context)
 
 
+@login_required()
 def devices_list(request):
-    pass
+    devices = models.Device.objects.all()  # This should retrieve all System objects from the database
+    request.session['previous_page'] = request.path
+
+    context = {
+        'devices': devices
+    }
+
+    return render(request, 'device/devices_list.html', context)
 
 
 def devices_delete(request):
@@ -206,14 +239,15 @@ def devices_edit(request):
     pass
 
 
-@login_required
+@login_required(login_url='/login/')
 def system_create(request):
     if request.method == 'POST':
         form = CreateHomeForm(request.POST)
         if form.is_valid():
             new_system = form.save(commit=False)
             # Assuming you want to associate the home with the user
-            new_system.owner = request.user
+            print(new_system.admin)
+            new_system.admin = request.user.userprofile
             new_system.save()
             return redirect('systems_list')
     else:
@@ -233,8 +267,14 @@ def systems_list(request):
     context = {
         'systems': systems
     }
+    query = request.GET.get('q', '')  # Get the query from the URL
+    if query:
+        # Filter systems where the name contains the query
+        systems = models.System.objects.filter(name__icontains=query)
+    else:
+        systems = models.System.objects.all()
 
-    return render(request, 'systems_list.html', context)
+    return render(request, 'systems_list.html', {'systems': systems, 'query': query})
 
 
 @login_required()
@@ -247,17 +287,21 @@ def system_delete(request, pk):
     context = {
         'system': system
     }
-
-    return render(request, 'system_confirm_delete.html', context)
+    return render(request, 'system_delete.html', context)
 
 
 def system_detail(request, pk):
-    pass
+    system = get_object_or_404(models.System, pk=pk)
+    # Assuming 'users' and 'devices' are related names for related objects
+    return render(request, 'system_detail.html', {'system': system})
 
 
 @login_required()
 def system_edit(request, pk):
+
     system = get_object_or_404(models.System, pk=pk)
+    # if request.user != system.admin:
+    #     return redirect('some_error_page')
     if request.method == 'POST':
         form = SystemForm(request.POST, instance=system)
         if form.is_valid():
@@ -267,11 +311,69 @@ def system_edit(request, pk):
     else:
         form = SystemForm(instance=system)
 
+        # Handle invite user form submission
+    if 'email' in request.POST:
+        email_to_invite = request.POST['email']
+        # You should implement invite_user_to_system
+        system_invite(request, email_to_invite, system)
+
+        # Handle remove user form submission
+    if 'remove_user' in request.POST:
+        user_to_remove = User.objects.get(pk=request.POST['remove_user'])
+        system.users.remove(user_to_remove)
+        system.save()
+
     context = {
         'form': form
     }
 
     return render(request, 'system_edit.html', context)
+
+@login_required
+def system_remove_user(request, system_id, user_id):
+    system = get_object_or_404(models.System, id=system_id)
+    user_to_remove = get_object_or_404(models.User, id=user_id)
+
+    # Check if the current user is the admin of the system
+    if request.user != system.admin:
+        # If not, do not allow them to remove users and return a forbidden response
+        messages.error(request, "You do not have permission to remove users from this system.")
+        return HttpResponseForbidden()
+
+    # Check that the user to remove is not the admin
+    if user_to_remove == system.admin:
+        messages.error(request, "The admin of the system cannot be removed.")
+        return redirect('system_detail', pk=system.pk)
+
+    # Remove the user from the system
+    system.users.remove(user_to_remove)
+    system.save()
+
+    # You can add a success message to the messages framework
+    messages.success(request, f"{user_to_remove.username} was successfully removed from the system.")
+
+    # Redirect to the system's detail page
+    return redirect('system_detail', pk=system.pk)
+
+
+def system_invite(request, pk):
+    system = get_object_or_404(models.System, pk=system.pk)
+
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        # Here, implement your logic for inviting a user, which could include:
+        # - Checking if the email already exists in the system
+        # - Creating a new user or sending an invitation email with a signup link
+        # - Associating the user with the system upon acceptance
+
+        # For now, let's just print the email to the console (replace this with actual logic)
+        print(f"Invite sent to {email}")
+
+        # Redirect back to the system edit page
+        return redirect('system_edit', pk=system.pk)
+
+    return render(request, 'system_invite.html', {'system': system})
+
 
 
 def parameter_create(request):

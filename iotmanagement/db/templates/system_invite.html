@@ -1,0 +1,15 @@
+<!-- system_invite.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Invite Users to {{ system.name }}</h2>
+
+    <form method="post" action="">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Send Invites</button>
+    </form>
+</div>
+{% endblock %}

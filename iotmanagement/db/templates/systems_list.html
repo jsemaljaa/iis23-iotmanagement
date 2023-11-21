@@ -3,9 +3,13 @@
 {% block content %}
 
 <div class="content">
-    <h1>Seach Home by Name</h1>
+    <h1>Search Home by Name</h1>
     <div class="search-bar">
-        <input type="text" placeholder="Search by home name" />
+        <!-- The form action points to the same page URL -->
+        <form method="get" action="{% url 'systems_list' %}">
+            <input type="text" name="q" placeholder="Search by home name" value="{{ query }}" />
+            <button type="submit">Search</button>
+        </form>
     </div>
     <div class="filters">
         <!-- Filters can go here -->
@@ -14,26 +18,35 @@
     <h1>List of Home Systems</h1>
     {% endcomment %}
     <div class="card-container">
-        {% for system in systems %}
-        <div class="card">
-            <h4>{{ system.name }}</h4>
-            <!-- Add links to edit the home -->
-            <a href="{% url 'system_edit' pk=system.pk %}">Edit</a>
-            <!-- Add a delete button/link -->
-            <form action="{% url 'system_delete' pk=system.pk %}" method="post">
-                {% csrf_token %}
-                <button type="submit">Delete</button>
-            </form>
+    {% for system in systems %}
+    <div class="card">
+        <h2>{{ system.name }}</h2>
+        <p>Owner: {{ system.admin.user.username }}</p>
+        <a href="{% url 'system_detail' pk=system.pk %}" class="btn">Details</a>
+
+        {% if user.is_authenticated %}
+        <a href="{% url 'system_edit' pk=system.pk %}" class="btn">Edit</a>
+        <a href="{% url 'system_delete' pk=system.pk %}" class="btn">Delete</a>
+        {% endif %}
     </div>
     {% empty %}
     <p>No homes found.</p>
     {% endfor %}
+</div>
     </div>
     <div class="create-home-form">
+        {% if user.is_authenticated %}
         <form method="post" action="{% url 'system_create' %}">
             {% csrf_token %}
             <button type="submit">Create Your Home</button>
         </form>
+        {% else %}
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <button type="submit">Create Your Home</button>
+        </form>
+        {% endif %}
+
     </div>
 </div>
 {% endblock %}

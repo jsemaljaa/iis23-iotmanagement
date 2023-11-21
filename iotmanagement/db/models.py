@@ -2,6 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
+from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import JSONField
+
 
 # Create your models here.
 
@@ -36,17 +40,49 @@ class UserProfile(models.Model):
 
 
 class Parameter(models.Model):
+    class PossibleValue(models.TextChoices):
+        """
+            NUMERIC = "N", "Numeric"
+            PERCENTAGE = "P", "Percentage"
+            ON_OFF = "OO", "On/Off"
+            STRING = "S", "String"
+            BOOLEAN = "B", "Boolean"
+            COLOR = "C", "Color"
+            TIMESTAMP = "TS", "Timestamp"
+            DURATION = "D", "Duration"
+            DISTANCE = "DI", "Distance"
+            WEIGHT = "W", "Weight"
+            VOLTAGE = "V", "Voltage"
+            CURRENT = "I", "Current"
+            PRESSURE = "P", "Pressure"
+            TEMPERATURE = "T", "Temperature"
+            HUMIDITY = "H", "Humidity"
+            SPEED = "SP", "Speed"
+        """
+        NUMERIC = "N", _("Numeric")
+        PERCENTAGE = "P", _("Percentage")
+
     name = models.CharField(max_length=16)
-    possible_values = models.CharField(max_length=16)
+    possible_values = models.CharField(
+        max_length=16,
+        choices=PossibleValue.choices,
+        default=PossibleValue.NUMERIC
+    )
     value = models.IntegerField()
+
+    def __str__(self):
+        return self.name
 
 
 class Device(models.Model):
     identifier = models.CharField(max_length=16, unique=True)
-    device_type = models.ManyToManyField(Parameter, related_name='device_type')
+    parameters = models.ManyToManyField(Parameter, related_name='device_type')
     description = models.TextField()
     alias = models.CharField(max_length=8)
     created_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='created_by_user', default=1)
+
+    def __str__(self):
+        return f"{self.name}, added by: {self.created_by.user.username}"
 
 
 class System(models.Model):
@@ -54,10 +90,10 @@ class System(models.Model):
     description = models.TextField()
     number_of_devices = models.PositiveIntegerField(default=0)
     number_of_users = models.PositiveIntegerField(default=0)
-    # admin = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='system_admin')
+    admin = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='system_admin', default=1)
 
     def __str__(self):
-        return f"{self.name} {self.admin.name} ({self.role})"
+        return f"{self.name} {self.admin.user.username} ({self.role})"
 
     def get_absolute_url(self):
         return reverse('system_detail', args=[str(self.pk)])
@@ -81,6 +117,12 @@ class UserDevices(models.Model):
 class UserSystems(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_with_systems')
     system = models.ForeignKey(System, on_delete=models.CASCADE, related_name='systems_from_user')
+
+
+class DeviceParameter(models.Model):
+    device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='device_with_parameters')
+    parameter = models.ForeignKey(Parameter, on_delete=models.CASCADE, related_name='parameter_in_device')
+    value = models.IntegerField()
 
 # class KPI(models.Model):
 #     class Function(models.TextChoices):
