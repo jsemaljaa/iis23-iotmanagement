@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
 from .decorators import admin_required
+
 
 from .forms import *
 from . import models
@@ -131,33 +133,48 @@ def devices_edit(request):
 
 
 def system_create(request):
-    pass
+    if request.method == 'POST':
+        form = CreateHomeForm(request.POST)
+        if form.is_valid():
+            system = form.save(commit=False)
+            system.number_of_devices = 0  # Set default number of devices
+            system.number_of_users = 0    # Set default number of users
+            system.save()
+            return redirect('systems_list')
+    else:
+        form = CreateHomeForm()
+    return render(request, 'system_create.html', {'form': form})
 
 
 def systems_list(request):
-    systems = models.System.objects.all()
-
-    visits = request.session.get('visits', 0)
-    request.session['visits'] = visits + 1
-
-    context = {
-        "object": systems,
-        'visits': visits
-    }
-
-    return render(request, 'systems_list.html', context=context)
+    systems = models.System.objects.all()  # This should retrieve all System objects from the database
+    context = {'systems': systems}
+    return render(request, 'systems_list.html', context)
 
 
-def system_delete(request):
-    pass
+def system_delete(request, pk):
+    system = get_object_or_404(models.System, pk=pk)
+    if request.method == 'POST':  # Confirm that the form has been submitted
+        system.delete()
+        return redirect('systems_list')  # Redirect to the systems list page after deletion
+    return render(request, 'system_confirm_delete.html', {'system': system})
+
 
 
 def system_detail(request):
     pass
 
 
-def system_edit(request):
-    pass
+def system_edit(request, pk):  # 'pk' parameter must be expected here
+    system = get_object_or_404(models.System, pk=pk)
+    if request.method == 'POST':
+        form = CreateHomeForm(request.POST, instance=system)
+        if form.is_valid():
+            form.save()
+            return redirect('systems_list')
+    else:
+        form = CreateHomeForm(instance=system)
+    return render(request, 'system_edit.html', {'form': form})
 
 
 def parameter_create(request):

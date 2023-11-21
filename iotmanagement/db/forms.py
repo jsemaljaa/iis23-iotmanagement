@@ -57,3 +57,9 @@ class UserProfileEditForm(forms.ModelForm):
         else:
             # Disable the 'role' field for non-admin users
             self.fields['role'].widget.attrs['disabled'] = True
+
+class CreateHomeForm(forms.ModelForm):
+    class Meta:
+        model = models.System
+        fields = ['name', 'description']  # Include description if you want it during creation
+        # Replace the fields with the actual field names of your System model

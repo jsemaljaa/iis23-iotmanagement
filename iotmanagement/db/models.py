@@ -52,7 +52,9 @@ class Device(models.Model):
 class System(models.Model):
     name = models.CharField(max_length=16)
     description = models.TextField()
-    admin = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='system_admin')
+    number_of_devices = models.PositiveIntegerField(default=0)
+    number_of_users = models.PositiveIntegerField(default=0)
+    # admin = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='system_admin')
 
     def __str__(self):
         return f"{self.name} {self.admin.name} ({self.role})"
@@ -102,6 +104,9 @@ class UserSystems(models.Model):
     # kpi will look something like
     # if humidity (parameter) > 80 then false
     # idk if we even should implement it like a table
+
+
+
 
 
 
