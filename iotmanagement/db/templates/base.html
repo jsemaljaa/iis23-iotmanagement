@@ -20,6 +20,7 @@
                 {% if user.userprofile.is_admin %}
                     <li><a href="{% url 'admin_dashboard' %}">Admin Dashboard</a></li>
                 {% endif %}
+                <li>Logged in as {{ user.username }}</li>
                 <li><a href="{% url 'profile' %}">Profile</a></li>
                 <li><a href="#">Devices</a></li>
                 <li><a href="#">Systems</a></li>

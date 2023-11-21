@@ -41,7 +41,6 @@ class UserProfileEditForm(forms.ModelForm):
     class Meta:
         model = models.UserProfile
         fields = [
-            # 'user',
             'name',
             'surname',
             'location',
@@ -51,9 +50,11 @@ class UserProfileEditForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(UserProfileEditForm, self).__init__(*args, **kwargs)
-        if 'instance' in kwargs and kwargs['instance'].is_admin():
-            # Allow modification of the 'role' field if the user is an admin
-            self.fields['role'].widget.attrs['disabled'] = False
-        else:
-            # Disable the 'role' field for non-admin users
-            self.fields['role'].widget.attrs['disabled'] = True
+        for field in self.fields.values():
+            field.required = False
+        # if 'instance' in kwargs and kwargs['instance'].is_admin():
+        #     # Allow modification of the 'role' field if the user is an admin
+        #     self.fields['role'].widget.attrs['disabled'] = False
+        # else:
+        #     # Disable the 'role' field for non-admin users
+        #     self.fields['role'].widget.attrs['disabled'] = True

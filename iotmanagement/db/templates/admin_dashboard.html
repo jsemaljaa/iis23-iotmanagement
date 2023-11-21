@@ -8,14 +8,13 @@
   <section>
     <h3>Users</h3>
     <div class="card-container">
-      {% for user in users %}
+      {% for user_entity in users %}
         <div class="card">
-          <h4>{{ user.username }}</h4>
-          {% if user.userprofile.is_admin %}
-            <p>(Admin)</p>
-          {% endif %}
-          <a href="{% url 'user_edit' user.id %}">Edit</a>
-          <a href="{% url 'user_detail' user.id %}">Details</a>
+          <h4>{{ user_entity.username }}</h4>
+          <p>({{ user_entity.userprofile.get_role_display }})</p>
+          <a href="{% url 'user_edit' user_entity.id %}">Edit</a>
+          <a href="{% url 'user_detail' user_entity.id %}">Details</a>
+          <a href="{% url 'user_delete' user_entity.id %}">Delete</a>
         </div>
       {% endfor %}
     </div>

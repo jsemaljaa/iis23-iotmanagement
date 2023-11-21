@@ -5,7 +5,29 @@
   <form method="post" action="{% url 'profile_edit' %}">
     {% csrf_token %}
 
+    {% comment %}
     {{ form.as_p }}
+    {% endcomment %}
+
+    {% for field in form %}
+    {% if user.userprofile.is_admin and field.name == 'role' %}
+        <div>
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+        </div>
+    {% elif not user.userprofile.is_admin and field.name == 'role' %}
+        <div>
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field.value|default:"No role available" }}
+        </div>
+    {% else %}
+        <div>
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+        </div>
+    {% endif %}
+{% endfor %}
+
 
     <button type="submit">Save Changes</button>
   </form>

@@ -2,12 +2,12 @@
 
 {% block content %}
   <h2>User Detail</h2>
-  <p><strong>Username:</strong> {{ user.username }}</p>
-  <p><strong>Name:</strong> {{ user.userprofile.name }}</p>
-  <p><strong>Surname:</strong> {{ user.userprofile.surname }}</p>
-  <p><strong>Location:</strong> {{ user.userprofile.location }}</p>
-  <p><strong>Email:</strong> {{ user.userprofile.email }}</p>
-  <p><strong>Role:</strong> {{ user.userprofile.get_role_display }}</p>
+  <p><strong>Username:</strong> {{ user_to_display.username }}</p>
+  <p><strong>Name:</strong> {{ user_to_display.userprofile.name }}</p>
+  <p><strong>Surname:</strong> {{ user_to_display.userprofile.surname }}</p>
+  <p><strong>Location:</strong> {{ user_to_display.userprofile.location }}</p>
+  <p><strong>Email:</strong> {{ user_to_display.userprofile.email }}</p>
+  <p><strong>Role:</strong> {{ user_to_display.userprofile.get_role_display }}</p>
 
   <a href="{% url 'admin_dashboard' %}">Back to Admin Dashboard</a>
 {% endblock %}
