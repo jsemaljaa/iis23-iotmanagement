@@ -18,7 +18,7 @@
     {% elif not user.userprofile.is_admin and field.name == 'role' %}
         <div>
             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field.value|default:"No role available" }}
+            {{ field.value|default:"No role" }}
         </div>
     {% else %}
         <div>
@@ -31,6 +31,7 @@
 
   <a href="{% url 'change_password' %}">Change Password</a>
     <p></p>
+  <a href="{% url 'profile_delete' %}">Delete your account</a>
 
     <button type="submit">Save Changes</button>
   </form>

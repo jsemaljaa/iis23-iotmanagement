@@ -90,8 +90,21 @@ def change_password(request):
     return render(request, 'change_password.html', context)
 
 
+@login_required
 def profile_delete(request):
-    pass
+    user_profile = request.user.userprofile
+
+    if request.method == 'POST':
+        user = request.user
+        user_profile.delete()
+        user.delete()
+        return redirect('home')
+
+    context = {
+        'user': user_profile
+    }
+
+    return render(request, 'profile_delete_confirm.html', context)
 
 
 @login_required
@@ -238,7 +251,7 @@ def system_delete(request, pk):
     return render(request, 'system_confirm_delete.html', context)
 
 
-def system_detail(request):
+def system_detail(request, pk):
     pass
 
 

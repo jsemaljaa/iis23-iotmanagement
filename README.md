@@ -1,6 +1,4 @@
 # TODO's Alina
-* fix sessions (logged out after some time, logged out after server is down, etc.)
-* add profile delete functionality
 * test stuff
 * create sql script to fill the database with reference data
 
