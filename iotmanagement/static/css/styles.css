@@ -30,6 +30,10 @@ section {
     gap: 20px;
 }
 
+.card-container h1 {
+    text-align: center;
+}
+
 .card {
     border: 1px solid #ddd;
     padding: 10px;

@@ -72,7 +72,7 @@ def profile_delete(request):
 
 @login_required
 def profile_edit(request):
-    user_profile = request.user.userprofile
+    user_profile, created = models.UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
         form = UserProfileEditForm(request.POST, instance=user_profile)
