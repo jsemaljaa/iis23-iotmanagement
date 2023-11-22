@@ -189,30 +189,21 @@ def signup(request):
 
 def devices_create(request):
     if request.method == 'POST':
-        device_form = DeviceForm(request.POST)
-        parameter_formset = DeviceParameterFormSet(request.POST, prefix='parameters')
-
-        if device_form.is_valid() and parameter_formset.is_valid():
-            device = device_form.save(commit=False)
+        form = DeviceForm(request.POST)
+        if form.is_valid():
+            device = form.save(commit=False)
             device.created_by = request.user.userprofile
             device.save()
-
-            for form in parameter_formset:
-                parameter = form.cleaned_data.get('parameter')
-                value = form.cleaned_data.get('value')
-                models.DeviceParameter.objects.create(device=device, parameter=parameter, value=value)
-
-            return redirect('device_list')
+            return redirect('devices_list')
     else:
-        device_form = DeviceForm()
-        parameter_formset = DeviceParameterFormSet(prefix='parameters')
+        form = DeviceForm()
 
     context = {
-        'device_form': device_form,
-        'parameter_formset': parameter_formset
+        'form': form
     }
 
     return render(request, 'device/devices_create.html', context)
+
 
 
 @login_required()

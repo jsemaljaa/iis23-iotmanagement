@@ -56,26 +56,25 @@ class DeviceForm(forms.ModelForm):
     class Meta:
         model = models.Device
         fields = [
-            # TODO: device_type like relationship between parameter and device
             'identifier',
             'parameters',
-            # 'description',
             'alias'
         ]
 
     def __init__(self, *args, **kwargs):
         super(DeviceForm, self).__init__(*args, **kwargs)
-        # Customize the parameters field as a dropdown
-        self.fields['parameters'].widget = forms.SelectMultiple(choices=YOUR_CHOICES_FROM_DATABASE)
-
-
-class DeviceParameterForm(forms.ModelForm):
-    class Meta:
-        model = models.DeviceParameter
-        fields = [
-            'parameter',
-            'value'
-        ]
+        parameter_choices = models.Parameter.objects.values_list('name')
+        self.fields['parameters'].widget = forms.SelectMultiple(choices=parameter_choices)
+        self.fields['identifier'].required = False
+        self.fields['identifier'].widget = forms.TextInput(attrs={
+            'placeholder': 'Enter name',
+            'required': 'True'
+        })
+        self.fields['alias'].required = False
+        self.fields['alias'].widget = forms.TextInput(attrs={
+            'placeholder': 'Enter Alias',
+            'required': 'True'
+        })
 
 
 
