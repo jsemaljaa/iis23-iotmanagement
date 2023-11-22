@@ -1,13 +1,41 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>User Detail</h2>
-  <p><strong>Username:</strong> {{ user_to_display.username }}</p>
-  <p><strong>Name:</strong> {{ user_to_display.userprofile.name }}</p>
-  <p><strong>Surname:</strong> {{ user_to_display.userprofile.surname }}</p>
-  <p><strong>Location:</strong> {{ user_to_display.userprofile.location }}</p>
-  <p><strong>Email:</strong> {{ user_to_display.userprofile.email }}</p>
-  <p><strong>Role:</strong> {{ user_to_display.userprofile.get_role_display }}</p>
+  <div class="container mt-5">
+    <h1>User Detail</h1>
+    <ul class="list-group">
+      <li class="list-group-item"><strong>Username:</strong> {{ user_to_display.username }}</li>
 
-  <a href="{% url 'admin_dashboard' %}">Back to Admin Dashboard</a>
+      <li class="list-group-item"><strong>Name:</strong>
+        {% if user_to_display.userprofile.name %}
+          {{ user_to_display.userprofile.name }}
+        {% else %}
+          <span style="font-style: italic; color: #808080;">Not provided</span>
+        {% endif %}
+      </li>
+      <li class="list-group-item"><strong>Surname:</strong>
+        {% if user_to_display.userprofile.surname %}
+          {{ user_to_display.userprofile.surname }}
+        {% else %}
+          <span style="font-style: italic; color: #808080;">Not provided</span>
+        {% endif %}
+      </li>
+      <li class="list-group-item"><strong>Email:</strong>
+        {% if user_to_display.userprofile.email %}
+          {{ user_to_display.userprofile.email }}
+        {% else %}
+          <span style="font-style: italic; color: #808080;">Not provided</span>
+        {% endif %}
+      </li>
+      <li class="list-group-item"><strong>Location:</strong>
+        {% if user_to_display.userprofile.location %}
+          {{ user_to_display.userprofile.location }}
+        {% else %}
+        <span style="font-style: italic; color: #808080;">Not provided</span>
+        {% endif %}
+      </li>
+      <li class="list-group-item"><strong>Role:</strong> {{ user_to_display.userprofile.get_role_display }}</li>
+    </ul>
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Admin Dashboard</a>
+  </div>
 {% endblock %}

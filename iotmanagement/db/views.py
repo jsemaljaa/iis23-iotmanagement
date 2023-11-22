@@ -112,6 +112,9 @@ def profile_delete(request):
 def profile_edit(request):
     user_profile, created = models.UserProfile.objects.get_or_create(user=request.user)
 
+    if request.session.pop('user_just_created', False):
+        messages.success(request, 'User successfully created!')
+
     if request.method == 'POST':
         form = UserProfileEditForm(request.POST, instance=user_profile)
         if form.is_valid():
@@ -172,6 +175,8 @@ def signup(request):
             user.user = form.cleaned_data['username']
             user.save()
 
+            messages.success(request, 'User created successfully!')
+            request.session['user_just_created'] = True
             # Log in the user immediately after registration
             auth_login(request, user)
 

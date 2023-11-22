@@ -1,13 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
+  <div class="container">
     {% if username %}
-        <h1>Hello, {{ username }}!</h1>
-        <h2>Welcome to your Smart Home Management App. </h2>
-        <p>You can click on the buttons above to see your profile, devices or systems</p>
+      <div class="jumbotron mt-5">
+        <h1 class="display-4">Hello, {{ username }}!</h1>
+        <h2 class="lead">Welcome to your Smart Home Management App.</h2>
+        <p class="lead">You can click on the buttons above to see your profile, devices, or systems.</p>
+      </div>
     {% else %}
-        <h1>Hello</h1>
-        <h2>Welcome to your Smart Home Management App</h2>
-        <p><a href="{% url 'signup' %}">Register now</a> to start using our app</p>
+      <div class="jumbotron mt-5">
+        <h1 class="display-4">Hello</h1>
+        <h2 class="lead">Welcome to your Smart Home Management App</h2>
+        <p class="lead"> <a href="{% url 'signup' %}">Register now</a> to start using our app</p>
+      </div>
     {% endif %}
+  </div>
 {% endblock %}

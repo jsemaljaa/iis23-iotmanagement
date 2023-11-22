@@ -1,11 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Delete Your Account</h2>
-  <p>Are you sure you want to delete your account?</p>
-  <form method="post" action="{% url 'profile_delete' %}">
-    {% csrf_token %}
-    <button type="submit">Delete</button>
-  </form>
-  <a href="{% url 'profile' %}">Cancel</a>
+<div class="container mt-5">
+    <h2 class="mb-4">Delete Your Account</h2>
+
+    <div class="alert alert-danger">
+      <p class="lead">Are you sure you want to delete your account?</p>
+    </div>
+
+    <form method="post" action="{% url 'profile_delete' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+
+    <a href="{% url 'profile' %}" class="btn btn-secondary mt-3">Cancel</a>
+</div>
 {% endblock %}

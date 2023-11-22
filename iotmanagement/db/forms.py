@@ -34,6 +34,30 @@ class UserProfileForm(UserCreationForm):
             'password2'
         ]
 
+    def __init__(self, *args, **kwargs):
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+        self.fields['username'] = forms.CharField(
+            label="Username",
+            widget=forms.TextInput,
+            error_messages={
+                'unique': 'This username already exists'
+            }
+        )
+        self.fields['password1'] = forms.CharField(
+            label="Password",
+            widget=forms.PasswordInput,
+            error_messages={
+                'required': 'Your custom required error message',
+                'password_too_short': 'Your custom password is too short message',
+                'password_common': 'Your custom password is too common message',
+            }
+        )
+
+        self.fields['password2'] = forms.CharField(
+            label="Password confirmation",
+            widget=forms.PasswordInput,
+        )
+
 
 class UserProfileEditForm(forms.ModelForm):
     class Meta:
@@ -63,7 +87,7 @@ class DeviceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(DeviceForm, self).__init__(*args, **kwargs)
-        parameter_choices = models.Parameter.objects.values_list('name')
+        parameter_choices = models.Parameter.objects.values_list('name', 'name')
         self.fields['parameters'].widget = forms.SelectMultiple(choices=parameter_choices)
         self.fields['identifier'].required = False
         self.fields['identifier'].widget = forms.TextInput(attrs={

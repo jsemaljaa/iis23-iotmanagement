@@ -6,49 +6,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Your IOT{% endblock %}</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
 </head>
 <body>
+<style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap");
+    * {
+        font-family: "Poppins", sans-serif;
+    }
+    body {
+      background-color: #b5b5b5; /* Set your desired background color */
+    }
+
+    header {
+      background-color: #007bff; /* Set your desired header color */
+    }
+
+    footer {
+      background-color: #434347; /* Set your desired footer color */
+      color: #ffffff; /* Set text color for the footer */
+      padding: 10px 0; /* Add padding to the footer */
+      text-align: center; /* Center align text in the footer */
+    }
+</style>
 
 <header>
-    <div class="logo">
-        <h1><a href="{% url 'home' %}">Your Home Systems</a></h1>
-    </div>
-    <nav>
-        <ul>
-            {% if user.is_authenticated %}
-                {% if user.userprofile.is_admin %}
-                    <li><a href="{% url 'admin_dashboard' %}">Admin Dashboard</a></li>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{% url 'home' %}">Your Home Systems</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                {% if user.is_authenticated %}
+                    {% if user.userprofile.is_admin %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">Admin Dashboard</a></li>
+                    {% endif %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'devices_list' %}">Devices</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'systems_list' %}">Systems</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'systems_list' %}">Systems</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
                 {% endif %}
-                <li>Logged in as {{ user.username }}</li>
-                <li><a href="{% url 'profile' %}">Profile</a></li>
-                <li><a href="{% url 'devices_list' %}">Devices</a></li>
-                <li><a href="{% url 'systems_list' %}">Systems</a></li>
-                <li><a href="{% url 'logout' %}">Logout</a></li>
-            {% else %}
-                <li><a href="{% url 'systems_list' %}">Systems</a></li>
-                <li><a href="{% url 'login' %}">Login</a></li>
-            {% endif %}
-        </ul>
+            </ul>
+        </div>
     </nav>
 </header>
 
-<div class="content">
+<div class="container mt-3">
     {% block content %}{% endblock %}
 </div>
 
+<footer class="mt-5 fixed-bottom">
+    <div class="footer-content text-center">
+        <p>For IIS 2023 project</p>
+        <p>Designed & Built by
+            <a href="mailto:xvinog00@vutbr.cz">Alina Vinogradova</a>
+            &
+            <a href="mailto:xmazur08@vutbr.cz">Maryia Mazurava</a>
+        </p>
+        {% if user.is_authenticated %}
+            <p>Logged in as {{ user.username }}</p>
+        {% endif %}
+    </div>
+</footer>
 
-
- <footer>
-        <div class="footer-content">
-            <p>For IIS 2023 project</p>
-            <p>Designed & Built by Alina Vinogradova & Maryia Mazurava</p>
-            <p class="footer-mail">xvinog00@vutbr.cz</p>
-            <p class="footer-mail">xmazur08@vutbr.cz</p>
-        </div>
- </footer>
-
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 </body>
 </html>

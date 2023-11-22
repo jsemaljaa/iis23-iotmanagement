@@ -2,50 +2,58 @@
 {% load static %}
 
 {% block content %}
-  <h2>Admin Dashboard</h2>
+  <div class="container mt-5">
+    <h2 class="mb-4">Admin Dashboard</h2>
 
-  <!-- Users Section -->
-  <section>
-    <h3>Users</h3>
-    <div class="card-container">
-      {% for user_entity in users %}
-        <div class="card">
-          <h4>{{ user_entity.username }}</h4>
-          <p>({{ user_entity.userprofile.get_role_display }})</p>
-          <a href="{% url 'user_edit' user_entity.id %}">Edit</a>
-          <a href="{% url 'user_detail' user_entity.id %}">Details</a>
-          <a href="{% url 'user_delete' user_entity.id %}">Delete</a>
-        </div>
-      {% endfor %}
-    </div>
-  </section>
+    <!-- Users Section -->
+    <section>
+      <h3>Users</h3>
+      <div class="card-deck">
+        {% for user_entity in users %}
+          <div class="card mb-4">
+            <div class="card-body">
+              <h4 class="card-title">{{ user_entity.username }}</h4>
+              <p class="card-text">{{ user_entity.userprofile.get_role_display }}</p>
+              <a href="{% url 'user_edit' user_entity.id %}" class="btn btn-primary btn-sm">Edit</a>
+              <a href="{% url 'user_detail' user_entity.id %}" class="btn btn-info btn-sm">Details</a>
+              <a href="{% url 'user_delete' user_entity.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
 
-  <!-- Systems Section -->
-  <section>
-    <h3>Systems</h3>
-    <div class="card-container">
-      {% for system in systems %}
-        <div class="card">
-          <h4>{{ system.name }}</h4>
-          <a href="{% url 'system_edit' pk=system.pk %}">Edit</a>
-          <a href="{% url 'system_delete' pk=system.pk %}">Delete</a>
-        </div>
-      {% endfor %}
-    </div>
-  </section>
+    <!-- Systems Section -->
+    <section>
+      <h3>Systems</h3>
+      <div class="card-deck">
+        {% for system in systems %}
+          <div class="card mb-4">
+            <div class="card-body">
+              <h4 class="card-title">{{ system.name }}</h4>
+              <a href="{% url 'system_edit' pk=system.pk %}" class="btn btn-primary btn-sm">Edit</a>
+              <a href="{% url 'system_delete' pk=system.pk %}" class="btn btn-danger btn-sm">Delete</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
 
-  <!-- Devices Section -->
-  <section>
-    <h3>Devices</h3>
-    <div class="card-container">
-      {% for device in devices %}
-        <div class="card">
-          <h4>{{ device.name }}</h4>
-          <p>{{ device.description }}</p>
-        </div>
-      {% endfor %}
-    </div>
-  </section>
+    <!-- Devices Section -->
+    <section>
+      <h3>Devices</h3>
+      <div class="card-deck">
+        {% for device in devices %}
+          <div class="card mb-4">
+            <div class="card-body">
+              <h4 class="card-title">{{ device.name }}</h4>
+              <p class="card-text">{{ device.description }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
 
   <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
 {% endblock %}

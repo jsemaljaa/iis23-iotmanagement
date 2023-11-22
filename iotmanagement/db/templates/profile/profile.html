@@ -1,15 +1,40 @@
 {% extends "base.html" %}
 
 {% block content %}
+  <div class="container mt-5">
     <h1>User Profile</h1>
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Name:</strong> {{ user.userprofile.name }}</p>
-    <p><strong>Surname:</strong> {{ user.userprofile.surname }}</p>
-    <p><strong>Email:</strong> {{ user.userprofile.email }}</p>
-    <p><strong>Location:</strong> {{ user.userprofile.location }}</p>
-    <p><strong>Role:</strong> {{ user.userprofile.get_role_display }}</p>
-
-    <!-- Add more fields as needed -->
-
-    <p><a href="{% url 'profile_edit' %}">Edit Profile</a></p>
+    <ul class="list-group">
+      <li class="list-group-item"><strong>Username:</strong> {{ user.username }}</li>
+      <li class="list-group-item"><strong>Name:</strong>
+        {% if user.userprofile.name %}
+          {{ user.userprofile.name }}
+        {% else %}
+          <span style="font-style: italic; color: #808080;">Not provided</span>
+        {% endif %}
+      </li>
+      <li class="list-group-item"><strong>Surname:</strong>
+        {% if user.userprofile.surname %}
+          {{ user.userprofile.surname }}
+        {% else %}
+          <span style="font-style: italic; color: #808080;">Not provided</span>
+        {% endif %}
+      </li>
+      <li class="list-group-item"><strong>Email:</strong>
+        {% if user.userprofile.email %}
+          {{ user.userprofile.email }}
+        {% else %}
+          <span style="font-style: italic; color: #808080;">Not provided</span>
+        {% endif %}
+      </li>
+      <li class="list-group-item"><strong>Location:</strong>
+        {% if user.userprofile.location %}
+          {{ user.userprofile.location }}
+        {% else %}
+          <span style="font-style: italic; color: #808080;">Not provided</span>
+        {% endif %}
+      </li>
+      <li class="list-group-item"><strong>Role:</strong> {{ user.userprofile.get_role_display }}</li>
+    </ul>
+    <p class="mt-3"><a href="{% url 'profile_edit' %}" class="btn btn-primary">Edit Profile</a></p>
+  </div>
 {% endblock %}
