@@ -1,37 +1,43 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-<h1>Edit System: {{ system.name }}</h1>
+<div class="container mt-4">
+    <h1>Edit System: {{ system.name }}</h1>
 
-    <!-- Invite Users Form -->
-    <div class="invite-users-form">
-        <h2>Invite Users</h2>
-        <form method="post" action="{% url 'system_invite' pk=system.pk %}">
-            {% csrf_token %}
-            <input type="email" name="email" placeholder="User email" required>
-            <button type="submit">Invite</button>
-        </form>
-    </div>
-    <!-- List of Users -->
-    <div class="users-list">
+    <!-- Users List -->
+    <div class="mb-3">
         <h2>Users</h2>
-        {% for user in system.users.all %}
-            <div class="user">
-                <span>{{ user.username }}</span>
-<!--                <form method="post" action="{% url 'system_remove_user' system.pk user.id %}">-->
-<!--                    {% csrf_token %}-->
-<!--                    <button type="submit">Remove</button>-->
-                </form>
-            </div>
-        {% empty %}
+        {% if system.users.all %}
+            <ul class="list-group">
+                {% for user in system.users.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ user.username }}
+                        <!-- Add a button or link for remove user logic here -->
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
             <p>No users.</p>
-        {% endfor %}
+        {% endif %}
     </div>
+
+    <!-- Invitation Form -->
+    <form method="post" class="mb-3">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ invite_form.as_p }}
+        </div>
+        <button type="submit" name="invite_user" class="btn btn-primary">Send Invitation</button>
+    </form>
+
+    <!-- Edit System Form -->
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save changes</button>
+        <div class="mb-3">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" name="edit_system" class="btn btn-success">Save changes</button>
     </form>
+
 </div>
 {% endblock %}

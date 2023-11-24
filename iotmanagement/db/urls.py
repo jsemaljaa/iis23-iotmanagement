@@ -10,11 +10,13 @@ urlpatterns = [
 
 # main app logic mapping
 urlpatterns += [
+    path('notifications/', views.notifications, name='notifications'),
+    path('invitations/accept/<int:invitation_id>/', views.accept_invitation, name='accept_invitation'),
+    path('invitations/decline/<int:invitation_id>/', views.decline_invitation, name='decline_invitation'),
     path('systems/', views.systems_list, name='systems_list'),
     path('systems/<int:pk>/detail', views.system_detail, name='system_detail'),
     path('systems/<int:pk>/edit', views.system_edit, name='system_edit'),
     path('systems/<int:pk>/delete', views.system_delete, name='system_delete'),
-    path('systems/<int:pk>/invite', views.system_invite, name='system_invite'),
     path('systems/<int:system_id>/remove/<int:user_id>', views.system_remove_user, name='system_remove_user'),
     path('systems/create', views.system_create, name='system_create'),
     path('systems/<int:pk>/devices', views.devices_list, name='devices_list'),

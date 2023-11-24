@@ -1,11 +1,14 @@
-from django.http import HttpResponseForbidden
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 
+from django.views.decorators.http import require_POST
 
 from .forms import *
 from . import models
@@ -292,38 +295,35 @@ def system_detail(request, pk):
     return render(request, 'system_detail.html', {'system': system})
 
 
-@login_required()
+@login_required
 def system_edit(request, pk):
-
     system = get_object_or_404(models.System, pk=pk)
-    # if request.user != system.admin:
-    #     return redirect('some_error_page')
     if request.method == 'POST':
-        form = SystemForm(request.POST, instance=system)
-        if form.is_valid():
-            form.save()
-            previous_page = request.session.get('previous_page', '/')
-            return redirect(previous_page)  # Redirect to the list view
+        edit_form = SystemForm(request.POST, instance=system)
+        invite_form = SendInvitationForm(request.POST)
+        if 'edit_system' in request.POST and edit_form.is_valid():
+            edit_form.save()
+            messages.success(request, 'System updated successfully.')
+            return redirect('system_detail', pk=system.pk)
+        elif 'invite_user' in request.POST and invite_form.is_valid():
+            username = invite_form.cleaned_data['username']
+            try:
+                user_to_invite = get_user_model().objects.get(username=username)
+                models.Invitation.objects.create(system=system, sender=request.user, recipient=user_to_invite,
+                                          status='pending')
+
+                notification_message = f"You have been invited to join the system '{system.name}' from user {request.user.username}."
+                models.Notification.objects.create(user=user_to_invite, message=notification_message, is_read=False)
+                messages.success(request, f'Invitation sent to {username}.')
+            except get_user_model().DoesNotExist:
+                messages.error(request, f'User {username} does not exist.')
+            return redirect('system_edit', pk=system.pk)
     else:
-        form = SystemForm(instance=system)
+        edit_form = SystemForm(instance=system)
+        invite_form = SendInvitationForm()
 
-        # Handle invite user form submission
-    if 'email' in request.POST:
-        email_to_invite = request.POST['email']
-        # You should implement invite_user_to_system
-        system_invite(request, email_to_invite, system)
+    return render(request, 'system_edit.html', {'system': system, 'edit_form': edit_form, 'invite_form': invite_form})
 
-        # Handle remove user form submission
-    if 'remove_user' in request.POST:
-        user_to_remove = User.objects.get(pk=request.POST['remove_user'])
-        system.users.remove(user_to_remove)
-        system.save()
-
-    context = {
-        'form': form
-    }
-
-    return render(request, 'system_edit.html', context)
 
 @login_required
 def system_remove_user(request, system_id, user_id):
@@ -352,24 +352,34 @@ def system_remove_user(request, system_id, user_id):
     return redirect('system_detail', pk=system.pk)
 
 
-def system_invite(request, pk):
-    system = get_object_or_404(models.System, pk=system.pk)
 
+@login_required
+def accept_invitation(request, invitation_id):
+    invitation = get_object_or_404(models.Invitation, id=invitation_id, recipient=request.user, status='pending')
     if request.method == 'POST':
-        email = request.POST.get('email')
-        # Here, implement your logic for inviting a user, which could include:
-        # - Checking if the email already exists in the system
-        # - Creating a new user or sending an invitation email with a signup link
-        # - Associating the user with the system upon acceptance
+        invitation.status = 'accepted'
+        invitation.system.users.add(request.user)
+        invitation.save()
+        # Also mark the notification as read if you have such a field
+        messages.success(request, 'Invitation accepted.')
+        return redirect('notifications')
 
-        # For now, let's just print the email to the console (replace this with actual logic)
-        print(f"Invite sent to {email}")
 
-        # Redirect back to the system edit page
-        return redirect('system_edit', pk=system.pk)
+@login_required
+def decline_invitation(request, invitation_id):
+    invitation = get_object_or_404(models.Invitation, id=invitation_id, recipient=request.user, status='pending')
+    if request.method == 'POST':
+        invitation.status = 'declined'
+        invitation.save()
+        # Also mark the notification as read if you have such a field
+        messages.success(request, 'Invitation declined.')
+        return redirect('notifications')
 
-    return render(request, 'system_invite.html', {'system': system})
 
+@login_required
+def notifications(request):
+    notifications = models.Notification.objects.filter(user=request.user, is_read=False)
+    return render(request, 'notifications.html', {'notifications': notifications})
 
 
 def parameter_create(request):

@@ -8,6 +8,8 @@
     <title>{% block title %}Your IOT{% endblock %}</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
 </head>
 <body>
 <style>
@@ -47,6 +49,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'devices_list' %}">Devices</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'systems_list' %}">Systems</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'notifications' %}"><i class="fas fa-bell"></i></a></li>
                 {% else %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'systems_list' %}">Systems</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
@@ -56,11 +59,13 @@
     </nav>
 </header>
 
-<div class="container mt-3">
-    {% block content %}{% endblock %}
+<div class="content-wrap">
+    <div class="container mt-3">
+        {% block content %}{% endblock %}
+    </div>
 </div>
 
-<footer class="mt-5 fixed-bottom">
+<footer class="mt-5">
     <div class="footer-content text-center">
         <p>For IIS 2023 project</p>
         <p>Designed & Built by
@@ -80,3 +85,4 @@
 
 </body>
 </html>
+

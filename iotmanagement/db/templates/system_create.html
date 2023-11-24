@@ -1,16 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="container my-4">
   {% if user.is_authenticated %}
-    <div class="container">
-        <h1>Create a New Home System</h1>
-        <form method="post">
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <h1 class="mb-3">Create a New Home System</h1>
+        <form method="post" class="needs-validation" novalidate>
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Create</button>
+            <div class="form-group">
+              {{ form.as_p }}
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
         </form>
+      </div>
     </div>
   {% else %}
-    <p>You must be logged in to create a home system.</p>
+    <div class="alert alert-info" role="alert">
+      <p>You must be logged in to create a home system. <a href="{% url 'login' %}" class="alert-link">Log in here</a></p>
+    </div>
   {% endif %}
+</div>
 {% endblock %}

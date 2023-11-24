@@ -90,6 +90,7 @@ class System(models.Model):
     description = models.TextField()
     number_of_devices = models.PositiveIntegerField(default=0)
     number_of_users = models.PositiveIntegerField(default=0)
+    users = models.ManyToManyField(User, related_name='systems')
     admin = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='system_admin', default=1)
 
     def __str__(self):
@@ -97,6 +98,27 @@ class System(models.Model):
 
     def get_absolute_url(self):
         return reverse('system_detail', args=[str(self.pk)])
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    message = models.CharField(max_length=255)
+    is_read = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.message
+
+
+class Invitation(models.Model):
+    system = models.ForeignKey('System', on_delete=models.CASCADE)
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_invitations', on_delete=models.CASCADE)
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_invitations', on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('declined', 'Declined')], default='pending')
+
+    def __str__(self):
+        return f"Invitation from {self.sender.username} to {self.recipient.username} for {self.system.name}"
+
 
 
 class SystemDevices(models.Model):

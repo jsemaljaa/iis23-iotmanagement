@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Notifications</h1>
+    <div class="list-group">
+        {% for notification in notifications %}
+            <div class="list-group-item list-group-item-action flex-column align-items-start">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ notification.message }}</h5>
+                    <small>{{ notification.timestamp|timesince }} ago</small>
+                </div>
+{#                <p class="mb-1">From: {{ notification.sender.username }}</p>#}
+{#                {% if notification.invitation %}#}
+                <div class="mt-2">
+                    <form method="post" action="{% url 'accept_invitation' invitation_id=notification.invitation.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                    </form>
+                    <form method="post" action="{% url 'decline_invitation' invitation_id=notification.invitation.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+                    </form>
+                </div>
+{#                {% endif %}#}
+{#                <form method="post" action="{% url 'mark_notification_read' notification.id %}" class="d-inline">#}
+{#                    {% csrf_token %}#}
+{#                    <button type="submit" class="btn btn-secondary btn-sm">Mark as read</button>#}
+{#                </form>#}
+            </div>
+        {% empty %}
+            <div class="list-group-item">
+                <p>No new notifications.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
