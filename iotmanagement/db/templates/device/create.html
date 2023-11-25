@@ -1,0 +1,72 @@
+<!-- device/create.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2>Create New Device</h2>
+    <form method="post" action="{% url 'devices_create' %}">
+      {% csrf_token %}
+
+      {% if device_form.errors %}
+        <div class="errorlist">
+          {% for field_errors in device_form.errors.values %}
+            {% for error in field_errors %}
+              <div class="alert alert-danger" role="alert">
+                {{ error }}
+              </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if error_message_devices %}
+        <div class="alert alert-danger" role="alert">
+          {{ error_message_devices }}
+        </div>
+      {% endif %}
+
+      {% for field in device_form %}
+        <div class="form-group">
+          {% if field.label != 'Parameters' %}
+          <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
+          {{ field }}
+          {% endif %}
+        </div>
+      {% endfor %}
+
+<!--      <input type="hidden" name="selected_parameters" id="selectedParametersInput" value="{% if selected_parameters %}{{ selected_parameters|join:',' }}{% endif %}">-->
+
+      <div class="form-group">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#parameterModal">
+          Select Parameters
+        </button>
+      </div>
+
+      {% if selected_parameters %}
+      <h3>Selected Parameters</h3>
+      <div class="row">
+        {% for parameter in selected_parameters %}
+          <div class="col-md-4 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">{{ parameter.name }}</h5>
+                <p class="card-text">{{ parameter.get_possible_values_display }}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+      <div class="form-group">
+        <button type="submit" class="btn btn-success" onclick="document.getElementById('createDeviceForm').submit();">Create Device</button>
+      </div>
+    </form>
+
+    {% include 'parameter/modal.html' %}
+
+      <a href="{% url 'devices_list' %}" class="btn btn-secondary">Back to Devices List</a>
+</div>
+
+
+{% endblock %}

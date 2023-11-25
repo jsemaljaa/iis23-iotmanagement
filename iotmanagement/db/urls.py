@@ -23,6 +23,9 @@ urlpatterns += [
     path('devices/<int:pk>/edit', views.devices_edit, name='devices_edit'),
     path('devices/<int:pk>/delete', views.devices_delete, name='devices_delete'),
     path('devices/create/', views.devices_create, name='devices_create'),
+    path('parameter/create', views.parameter_create, name='parameter_create'),
+    path('parameter/delete', views.parameter_delete, name='parameter_delete'),
+    path('devices/save_selected_parameters/', views.save_selected_parameters, name='save_selected_parameters'),
 ]
 # user access logic
 urlpatterns += [

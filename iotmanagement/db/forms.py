@@ -13,7 +13,23 @@ class ChangePasswordForm(PasswordChangeForm):
 class ParameterForm(forms.ModelForm):
     class Meta:
         model = models.Parameter
-        fields = ['name', 'possible_values', 'value']
+        fields = ['name', 'possible_values']
+
+    def __init__(self, *args, **kwargs):
+        super(ParameterForm, self).__init__(*args, **kwargs)
+        self.fields['name'].required = True
+
+        self.fields['name'].widget = forms.TextInput(attrs={
+            'placeholder': '(required)',
+            'required': True,
+        })
+        self.fields['possible_values'].required = True
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if models.Parameter.objects.filter(name=name).exists():
+            raise forms.ValidationError('A parameter with this name already exists.')
+        return name
 
 
 class UserProfileForm(UserCreationForm):
@@ -47,9 +63,9 @@ class UserProfileForm(UserCreationForm):
             label="Password",
             widget=forms.PasswordInput,
             error_messages={
-                'required': 'Your custom required error message',
-                'password_too_short': 'Your custom password is too short message',
-                'password_common': 'Your custom password is too common message',
+                # 'required': 'Your custom required error message',
+                'password_too_short': 'Your custom password is too short',
+                'password_common': 'Your custom password is too common',
             }
         )
 
@@ -81,25 +97,21 @@ class DeviceForm(forms.ModelForm):
         model = models.Device
         fields = [
             'identifier',
-            'parameters',
             'alias'
         ]
 
     def __init__(self, *args, **kwargs):
         super(DeviceForm, self).__init__(*args, **kwargs)
-        parameter_choices = models.Parameter.objects.values_list('name', 'name')
-        self.fields['parameters'].widget = forms.SelectMultiple(choices=parameter_choices)
-        self.fields['identifier'].required = False
+        self.fields['identifier'].required = True
         self.fields['identifier'].widget = forms.TextInput(attrs={
-            'placeholder': 'Enter name',
-            'required': 'True'
+            'placeholder': '(required)',
+            'required': True
         })
         self.fields['alias'].required = False
         self.fields['alias'].widget = forms.TextInput(attrs={
-            'placeholder': 'Enter Alias',
-            'required': 'True'
+            'placeholder': '(optional)',
+            'required': False
         })
-
 
 
 class CreateHomeForm(forms.ModelForm):
