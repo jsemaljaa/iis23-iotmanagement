@@ -1,31 +1,43 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <div class="container mt-4">
-    <h1>Notifications</h1>
+    <h2>Notifications</h2>
     <div class="list-group">
         {% for notification in notifications %}
-            <div class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="list-group-item list-group-item-action">
                 <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">{{ notification.message }}</h5>
+                    <div>
+                        <h5 class="mb-1">{{ notification.message }}</h5>
+                        <p class="mb-1"><small>From: {{ notification.sender.username }}</small></p>
+                    </div>
                     <small>{{ notification.timestamp|timesince }} ago</small>
                 </div>
-{#                <p class="mb-1">From: {{ notification.sender.username }}</p>#}
-{#                {% if notification.invitation %}#}
-                <div class="mt-2">
-                    <form method="post" action="{% url 'accept_invitation' invitation_id=notification.invitation.id %}">
+
+                <!-- Display buttons based on the type of notification -->
+                {% if notification.type == 'invitation' %}
+                    <!-- Accept Button -->
+                    <form method="post" action="{% url 'accept_invitation' notification_id=notification.id %}" class="d-inline">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-success btn-sm">Accept</button>
                     </form>
-                    <form method="post" action="{% url 'decline_invitation' invitation_id=notification.invitation.id %}" class="d-inline">
+                    <!-- Decline Button -->
+                    <form method="post" action="{% url 'decline_invitation' notification_id=notification.id %}" class="d-inline">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger btn-sm">Decline</button>
                     </form>
-                </div>
-{#                {% endif %}#}
-{#                <form method="post" action="{% url 'mark_notification_read' notification.id %}" class="d-inline">#}
+                {% endif %}
+
+                <!-- Delete Button (Common for all notifications) -->
+                <form method="post" action="{% url 'delete_notification' notification.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary btn-sm">Delete</button>
+                </form>
+
+
+{#                {% if notification.type == 'system' %}#}
+{#                <form method="post" action="{% url 'handle_system_notification' notification.id %}" class="d-inline">#}
 {#                    {% csrf_token %}#}
-{#                    <button type="submit" class="btn btn-secondary btn-sm">Mark as read</button>#}
+{#                    <button type="submit" class="btn btn-primary btn-sm">Handle</button>#}
 {#                </form>#}
             </div>
         {% empty %}

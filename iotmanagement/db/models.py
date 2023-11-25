@@ -106,19 +106,39 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    NOTIFICATION_TYPES = [
+        ('invitation', 'Invitation'),
+        ('system', 'System Notification'),
+    ]
+    type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='system')
+
     def __str__(self):
-        return self.message
+        return f"{self.get_type_display()}: {self.message}"
 
 
-class Invitation(models.Model):
-    system = models.ForeignKey('System', on_delete=models.CASCADE)
+class Invitation(Notification):
+    system = models.ForeignKey(System, on_delete=models.CASCADE)
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_invitations', on_delete=models.CASCADE)
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_invitations', on_delete=models.CASCADE)
-    status = models.CharField(max_length=10, choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('declined', 'Declined')], default='pending')
+
+    def accept(self):
+        # Add recipient to the system, mark the notification as read, and delete the invitation
+        self.system.users.add(self.recipient)
+        self.is_read = True
+        self.message = f"Invitation to {self.system.name} accepted."
+        self.save()
+        self.delete()
+
+    def decline(self):
+        # Mark the notification as read, update the message, and delete the invitation
+        self.is_read = True
+        self.message = f"Invitation to {self.system.name} declined."
+        self.save()
+        self.delete()
 
     def __str__(self):
+        # Specific string representation for Invitation instances
         return f"Invitation from {self.sender.username} to {self.recipient.username} for {self.system.name}"
-
 
 
 class SystemDevices(models.Model):

@@ -18,6 +18,7 @@ from . import models
 def admin_required(user):
     return user.is_authenticated and user.userprofile.is_admin
 
+
 # Create your views here.
 
 
@@ -213,8 +214,7 @@ def devices_create(request):
     return render(request, 'device/devices_create.html', context)
 
 
-
-@login_required()
+@login_required
 def devices_list(request):
     devices = models.Device.objects.all()  # This should retrieve all System objects from the database
     request.session['previous_page'] = request.path
@@ -244,7 +244,6 @@ def system_create(request):
         form = CreateHomeForm(request.POST)
         if form.is_valid():
             new_system = form.save(commit=False)
-            # Assuming you want to associate the home with the user
             print(new_system.admin)
             new_system.admin = request.user.userprofile
             new_system.save()
@@ -260,20 +259,18 @@ def system_create(request):
 
 
 def systems_list(request):
-    systems = models.System.objects.all()  # This should retrieve all System objects from the database
+    systems = models.System.objects.all()
     request.session['previous_page'] = request.path
-
-    context = {
-        'systems': systems
-    }
-    query = request.GET.get('q', '')  # Get the query from the URL
+    query = request.GET.get('q', '')
     if query:
-        # Filter systems where the name contains the query
         systems = models.System.objects.filter(name__icontains=query)
     else:
         systems = models.System.objects.all()
-
-    return render(request, 'systems_list.html', {'systems': systems, 'query': query})
+    context = {
+        'systems': systems,
+        'query': query
+    }
+    return render(request, 'systems_list.html', context)
 
 
 @login_required()
@@ -282,7 +279,6 @@ def system_delete(request, pk):
     if request.method == 'POST':  # Confirm that the form has been submitted
         system.delete()
         return redirect('systems_list')  # Redirect to the systems list page after deletion
-
     context = {
         'system': system
     }
@@ -291,95 +287,93 @@ def system_delete(request, pk):
 
 def system_detail(request, pk):
     system = get_object_or_404(models.System, pk=pk)
-    # Assuming 'users' and 'devices' are related names for related objects
     return render(request, 'system_detail.html', {'system': system})
 
 
 @login_required
 def system_edit(request, pk):
     system = get_object_or_404(models.System, pk=pk)
-    if request.method == 'POST':
-        edit_form = SystemForm(request.POST, instance=system)
-        invite_form = SendInvitationForm(request.POST)
-        if 'edit_system' in request.POST and edit_form.is_valid():
-            edit_form.save()
-            messages.success(request, 'System updated successfully.')
-            return redirect('system_detail', pk=system.pk)
-        elif 'invite_user' in request.POST and invite_form.is_valid():
-            username = invite_form.cleaned_data['username']
-            try:
-                user_to_invite = get_user_model().objects.get(username=username)
-                models.Invitation.objects.create(system=system, sender=request.user, recipient=user_to_invite,
-                                          status='pending')
+    # if not system.users.filter(pk=request.user.pk).exists():
+    #     messages.error(request, "You don't have permission to edit this system.")
+    #     return redirect('systems_list')
 
-                notification_message = f"You have been invited to join the system '{system.name}' from user {request.user.username}."
-                models.Notification.objects.create(user=user_to_invite, message=notification_message, is_read=False)
-                messages.success(request, f'Invitation sent to {username}.')
-            except get_user_model().DoesNotExist:
-                messages.error(request, f'User {username} does not exist.')
+    edit_form = SystemForm(instance=system)
+    invite_form = SendInvitationForm()
+
+    if request.method == 'POST':
+        if 'edit_system' in request.POST:
+            edit_form = SystemForm(request.POST, instance=system)
+            if edit_form.is_valid():
+                edit_form.save()
+                return redirect('system_detail', pk=system.pk)
+        else:
+            invite_form = SendInvitationForm(request.POST)
+            if invite_form.is_valid():
+                username = invite_form.cleaned_data['username']
+                try:
+
+                    user_to_invite = get_user_model().objects.get(username=username)
+                    notification_message = f"You have been invited to {system.name}."
+                    invitation = models.Invitation.objects.create(system=system, sender=request.user,
+                                                                  user_id=user_to_invite.id,
+                                                                  recipient=user_to_invite,
+                                                                  user=user_to_invite, message=notification_message,
+                                                                  is_read=False,
+                                                                  type='invitation')
+
+
+                    return redirect('system_edit', pk=system.pk)
+                except get_user_model().DoesNotExist:
+                    messages.error(request, f'User {username} does not exist.')
             return redirect('system_edit', pk=system.pk)
-    else:
-        edit_form = SystemForm(instance=system)
-        invite_form = SendInvitationForm()
 
     return render(request, 'system_edit.html', {'system': system, 'edit_form': edit_form, 'invite_form': invite_form})
 
 
 @login_required
-def system_remove_user(request, system_id, user_id):
-    system = get_object_or_404(models.System, id=system_id)
-    user_to_remove = get_object_or_404(models.User, id=user_id)
-
-    # Check if the current user is the admin of the system
-    if request.user != system.admin:
-        # If not, do not allow them to remove users and return a forbidden response
-        messages.error(request, "You do not have permission to remove users from this system.")
-        return HttpResponseForbidden()
-
-    # Check that the user to remove is not the admin
-    if user_to_remove == system.admin:
-        messages.error(request, "The admin of the system cannot be removed.")
-        return redirect('system_detail', pk=system.pk)
-
-    # Remove the user from the system
-    system.users.remove(user_to_remove)
-    system.save()
-
-    # You can add a success message to the messages framework
-    messages.success(request, f"{user_to_remove.username} was successfully removed from the system.")
-
-    # Redirect to the system's detail page
-    return redirect('system_detail', pk=system.pk)
+def accept_invitation(request, notification_id):
+    notification = get_object_or_404(models.Notification, id=notification_id)
+    invitation = notification.invitation
+    if request.method == 'POST':
+        invitation.accept()
+    return redirect('notifications')
 
 
 
 @login_required
-def accept_invitation(request, invitation_id):
-    invitation = get_object_or_404(models.Invitation, id=invitation_id, recipient=request.user, status='pending')
+def decline_invitation(request, notification_id):
+    notification = get_object_or_404(models.Notification, id=notification_id)
+    invitation = notification.invitation
     if request.method == 'POST':
-        invitation.status = 'accepted'
-        invitation.system.users.add(request.user)
-        invitation.save()
-        # Also mark the notification as read if you have such a field
-        messages.success(request, 'Invitation accepted.')
-        return redirect('notifications')
-
-
-@login_required
-def decline_invitation(request, invitation_id):
-    invitation = get_object_or_404(models.Invitation, id=invitation_id, recipient=request.user, status='pending')
-    if request.method == 'POST':
-        invitation.status = 'declined'
-        invitation.save()
-        # Also mark the notification as read if you have such a field
-        messages.success(request, 'Invitation declined.')
-        return redirect('notifications')
+        invitation.decline()
+    return redirect('notifications')
 
 
 @login_required
 def notifications(request):
-    notifications = models.Notification.objects.filter(user=request.user, is_read=False)
+    notifications = models.Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    )
     return render(request, 'notifications.html', {'notifications': notifications})
+
+
+@login_required
+def delete_notification(request, notification_id):
+    notification = get_object_or_404(models.Notification, id=notification_id, user=request.user)
+
+    if request.method == 'POST':
+        notification.delete()
+        return redirect('notifications')  # Redirect to the notifications page
+    return redirect('notifications')
+
+@login_required
+def remove_user(request, system_id, user_id):
+    system = get_object_or_404(models.System, pk=system_id)
+    user = get_object_or_404(system.users, pk=user_id)
+    system.users.remove(user)
+    messages.success(request, f"User {user.username} has been removed from the system.")
+    return redirect('system_edit', pk=system_id)
 
 
 def parameter_create(request):
