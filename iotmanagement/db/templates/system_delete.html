@@ -1,14 +1,21 @@
-<!-- system_confirm_delete.html -->
-
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <h1>Are you sure you want to delete "{{ system.name }}"?</h1>
-    <form method="post" action="{% url 'system_delete' pk=system.pk %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Confirm Delete</button>
-        <a href="{% url 'systems_list' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="alert alert-warning" role="alert">
+                <h4 class="alert-heading">Confirm Deletion</h4>
+                <p>Are you sure you want to delete "{{ system.name }}"? This action cannot be undone.</p>
+            </div>
+            <form method="post" action="{% url 'system_delete' pk=system.pk %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                    <a href="{% url 'systems_list' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -1,24 +1,46 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <h1>{{ system.name }}</h1>
-    <p>{{ system.description }}</p>
-    <h2>Users</h2>
-    <ul>
-        {% for user in system.users.all %}
-            <li>{{ user.username }}</li>
-        {% empty %}
-            <li>No users.</li>
-        {% endfor %}
-    </ul>
-    <h2>Devices</h2>
-    <ul>
-        {% for device in system.devices.all %}
-            <li>{{ device.name }}</li>
-        {% empty %}
-            <li>No devices.</li>
-        {% endfor %}
-    </ul>
+<div class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h1 class="card-title">{{ system.name }}</h1>
+        </div>
+        <div class="card-body">
+            <p class="card-text">{{ system.description }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="card-title">Users</h2>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for user in system.users.all %}
+                        <li class="list-group-item">{{ user.username }}</li>
+                    {% empty %}
+                        <li class="list-group-item">No users.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="card-title">Devices</h2>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for device in system.devices.all %}
+                        <li class="list-group-item">{{ device.name }}</li>
+                    {% empty %}
+                        <li class="list-group-item">No devices.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

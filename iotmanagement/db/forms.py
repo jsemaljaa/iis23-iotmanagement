@@ -129,3 +129,15 @@ class SystemForm(forms.ModelForm):
         fields = ['name', 'description', 'number_of_devices', 'number_of_users']
 
 
+class SendInvitationForm(forms.Form):
+    username = forms.CharField(label='Username', max_length=150)
+
+    def clean_username(self):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        username = self.cleaned_data['username']
+        try:
+            User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise forms.ValidationError(f"User with username {username} does not exist.")
+        return username
