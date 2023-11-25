@@ -1,0 +1,50 @@
+<!-- device/detail.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-5">
+  <h1>Device Detail</h1>
+    <ul class="list-group">
+      <li class="list-group-item"><strong>Identifier:</strong> {{ device.identifier }}</li>
+
+      <li class="list-group-item"><strong>Alias:</strong>
+        {% if device.alias %}
+          {{ device.alias }}
+        {% else %}
+          <span style="font-style: italic; color: #808080;">Not provided</span>
+        {% endif %}
+      </li>
+      <li class="list-group-item"><strong>Description:</strong>
+        {% if device.description %}
+          {{ device.description }}
+        {% else %}
+          <span style="font-style: italic; color: #808080;">Not provided</span>
+        {% endif %}
+      </li>
+    </ul>
+
+    <hr class="my-3">
+
+  <h3>Parameters</h3>
+  <div class="row">
+        {% for parameter in parameters %}
+          <div class="col-md-4 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">{{ parameter.name }}</h5>
+                <p class="card-text">{{ parameter.get_possible_values_display }}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+  </div>
+
+  <hr class="my-3">
+
+  <a href="{% url 'devices_list' %}" class="btn btn-secondary">Back to Devices List</a>
+
+</div>
+
+{% endblock %}

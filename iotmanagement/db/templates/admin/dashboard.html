@@ -14,8 +14,8 @@
             <div class="card-body">
               <h4 class="card-title">{{ user_entity.username }}</h4>
               <p class="card-text">{{ user_entity.userprofile.get_role_display }}</p>
-              <a href="{% url 'user_edit' user_entity.id %}" class="btn btn-primary btn-sm">Edit</a>
               <a href="{% url 'user_detail' user_entity.id %}" class="btn btn-info btn-sm">Details</a>
+              <a href="{% url 'user_edit' user_entity.id %}" class="btn btn-warning btn-sm">Edit</a>
               <a href="{% url 'user_delete' user_entity.id %}" class="btn btn-danger btn-sm">Delete</a>
             </div>
           </div>

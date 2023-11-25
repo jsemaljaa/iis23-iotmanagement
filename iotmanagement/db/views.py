@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth import login as auth_login, logout as auth_logout
@@ -19,9 +19,6 @@ def admin_required(user):
     return user.is_authenticated and user.userprofile.is_admin
 
 
-# Create your views here.
-
-
 @user_passes_test(admin_required, login_url='login')
 def admin_dashboard(request):
     users = User.objects.all()
@@ -35,7 +32,7 @@ def admin_dashboard(request):
         'systems': systems
     }
 
-    return render(request, 'admin/admin_dashboard.html', context)
+    return render(request, 'admin/dashboard.html', context)
 
 
 @user_passes_test(admin_required, login_url='login')
@@ -78,7 +75,7 @@ def user_detail(request, pk):
     return render(request, 'admin/user_detail.html', context)
 
 
-@login_required
+@login_required(login_url='login')
 def change_password(request):
     if request.method == 'POST':
         form = ChangePasswordForm(request.user, request.POST)
@@ -95,7 +92,7 @@ def change_password(request):
     return render(request, 'profile/change_password.html', context)
 
 
-@login_required
+@login_required(login_url='login')
 def profile_delete(request):
     user_profile = request.user.userprofile
 
@@ -109,10 +106,10 @@ def profile_delete(request):
         'user': user_profile
     }
 
-    return render(request, 'profile/profile_delete_confirm.html', context)
+    return render(request, 'profile/delete_confirm.html', context)
 
 
-@login_required
+@login_required(login_url='login')
 def profile_edit(request):
     user_profile, created = models.UserProfile.objects.get_or_create(user=request.user)
 
@@ -122,8 +119,8 @@ def profile_edit(request):
     if request.method == 'POST':
         form = UserProfileEditForm(request.POST, instance=user_profile)
         if form.is_valid():
-            form.save()  # This will either create a new record or update an existing one
-            return redirect('profile')  # Redirect to the edit profile page after saving changes
+            form.save()
+            return redirect('profile')
     else:
         form = UserProfileEditForm(instance=user_profile)
 
@@ -131,10 +128,10 @@ def profile_edit(request):
         'form': form
     }
 
-    return render(request, 'profile/profile_edit.html', context)
+    return render(request, 'profile/edit.html', context)
 
 
-@login_required
+@login_required(login_url='login')
 def profile(request):
     user = request.user
     user_profile, created = models.UserProfile.objects.get_or_create(user=user)
@@ -153,7 +150,7 @@ def login(request):
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
-            return redirect('home')  # Change 'dashboard' to the desired page after login
+            return redirect('home')
     else:
         form = AuthenticationForm()
 
@@ -164,7 +161,7 @@ def login(request):
     return render(request, 'login.html', context)
 
 
-@login_required
+@login_required(login_url='login')
 def logout(request):
     auth_logout(request)
     return redirect('home')
@@ -181,11 +178,10 @@ def signup(request):
 
             messages.success(request, 'User created successfully!')
             request.session['user_just_created'] = True
-            # Log in the user immediately after registration
+
             auth_login(request, user)
 
-            # Redirect to the edit profile page
-            return redirect('profile_edit')  # Change 'edit_profile' to the actual URL or name of your edit profile page
+            return redirect('profile_edit')
     else:
         form = UserProfileForm()
 
@@ -196,46 +192,129 @@ def signup(request):
     return render(request, 'signup.html', context)
 
 
+@login_required(login_url='login')
 def devices_create(request):
-    if request.method == 'POST':
-        form = DeviceForm(request.POST)
-        if form.is_valid():
-            device = form.save(commit=False)
-            device.created_by = request.user.userprofile
-            device.save()
-            return redirect('devices_list')
-    else:
-        form = DeviceForm()
-
+    parameters = models.Parameter.objects.all()
     context = {
-        'form': form
+        'parameters': parameters
     }
+    if request.method == 'POST':
+        selected_parameters = request.session.get('device_selected_parameters', [])
+        if 'device_selected_parameters' in request.session:
+            del request.session['device_selected_parameters']
 
-    return render(request, 'device/devices_create.html', context)
+        device_form = DeviceForm(request.POST)
+        parameter_form = ParameterForm(request.POST)
+
+        context.update({
+            'device_form': device_form,
+            'parameter_form': parameter_form
+        })
+
+        if selected_parameters:
+            if device_form.is_valid():
+                device = device_form.save(commit=False)
+
+                device.created_by = request.user.userprofile
+                device.save()
+
+                for parameter_id in selected_parameters:
+                    parameter = models.Parameter.objects.get(id=parameter_id)
+                    models.DeviceParameter.objects.create(device=device, parameter=parameter, value=0)
+
+                return redirect('devices_list')
+
+            else:
+                print(device_form.errors)
+                error_message = 'Invalid form data. Please check the form entries.'
+
+                context.update({
+                    'error_message_devices': error_message
+                })
+
+                return render(request, 'device/create.html', context)
+        else:
+            error_message = 'You have to select at least one parameter'
+            context.update({
+                'error_message_devices': error_message
+            })
+
+            return render(request, 'device/create.html', context)
+    else:
+        device_form = DeviceForm()
+        parameter_form = ParameterForm()
+        context.update({
+            'device_form': device_form,
+            'parameter_form': parameter_form
+        })
+
+    return render(request, 'device/create.html', context)
 
 
-@login_required
+@login_required(login_url='login')
+def parameter_delete(request):
+    if request.method == 'POST':
+        parameter_id = request.POST.get('parameter_id')
+        parameter = get_object_or_404(models.Parameter, pk=parameter_id)
+        parameter.delete()
+        return JsonResponse({'success': True, 'message': 'Parameter deleted successfully'})
+    else:
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+
+@login_required(login_url='login')
 def devices_list(request):
-    devices = models.Device.objects.all()  # This should retrieve all System objects from the database
+    devices = models.Device.objects.all()
     request.session['previous_page'] = request.path
 
     context = {
         'devices': devices
     }
 
-    return render(request, 'device/devices_list.html', context)
+    return render(request, 'device/list.html', context)
 
 
-def devices_delete(request):
-    pass
+def devices_delete(request, pk):
+    device = get_object_or_404(models.Device, id=pk)
+
+    # Check if the user has permission to delete the device
+    if device.created_by == request.user.userprofile:
+        device.delete()
+
+    return redirect('devices_list')
 
 
-def devices_detail(request):
-    pass
+def devices_detail(request, pk):
+    device = get_object_or_404(models.Device, id=pk, created_by=request.user.userprofile)
+
+    device_parameters = models.DeviceParameter.objects.filter(device=device)
+
+    print(device_parameters)
+
+    parameters = [record.parameter for record in device_parameters]
+
+    print(parameters)
+
+    context = {
+        'device': device,
+        'parameters': parameters
+    }
+
+    return render(request, 'device/detail.html', context)
 
 
-def devices_edit(request):
-    pass
+def devices_edit(request, pk):
+    device = get_object_or_404(models.Device, pk=pk)
+
+    if request.method == 'POST':
+        form = DeviceForm(request.POST, instance=device)
+        if form.is_valid():
+            form.save()
+            return redirect('devices_detail', pk=pk)  # Redirect to the detail page after editing
+    else:
+        form = DeviceForm(instance=device)
+
+    return render(request, 'device/edit.html', {'form': form, 'device': device})
 
 
 @login_required(login_url='/login/')
@@ -330,6 +409,7 @@ def system_edit(request, pk):
     return render(request, 'system_edit.html', {'system': system, 'edit_form': edit_form, 'invite_form': invite_form})
 
 
+
 @login_required
 def accept_invitation(request, notification_id):
     notification = get_object_or_404(models.Notification, id=notification_id)
@@ -375,28 +455,46 @@ def remove_user(request, system_id, user_id):
     messages.success(request, f"User {user.username} has been removed from the system.")
     return redirect('system_edit', pk=system_id)
 
-
+@login_required(login_url='login')
 def parameter_create(request):
     if request.method == 'POST':
         form = ParameterForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('success_page')
+            parameter = form.save()
+            parameters = models.Parameter.objects.all()
+
+
+
+            return JsonResponse({'success': True, 'message': 'Parameter created successfully'})
+        else:
+            print("hello")
+            error_message = form.errors.get('name', ['Unknown error'])[0]
+            return JsonResponse({'success': False, 'error_message_parameters': error_message})
     else:
-        form = ParameterForm()
+        return JsonResponse({'success': False, 'error_message': 'Invalid request method'})
 
-    context = {
-        'form': form
-    }
 
-    return render(request, 'parameter.html', context)
+@login_required(login_url='login')
+def save_selected_parameters(request):
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+
+        selected_parameters = request.POST.getlist('selected_parameters[]', [])
+
+        request.session['device_selected_parameters'] = selected_parameters
+
+        # print(request.session['device_selected_parameters'])
+
+        # print(request.session['device_selected_parameters'])
+
+        return JsonResponse({'success': True, 'message': 'Selected parameters saved successfully'})
+    else:
+        return JsonResponse({'success': False, 'message': 'Invalid request'})
 
 
 def home(request):
     context = {}
 
     if request.user.is_authenticated:
-        # If logged in, include the username in the context
         context['username'] = request.user.username
 
     return render(request, 'home.html', context)

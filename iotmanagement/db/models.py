@@ -62,27 +62,24 @@ class Parameter(models.Model):
         NUMERIC = "N", _("Numeric")
         PERCENTAGE = "P", _("Percentage")
 
-    name = models.CharField(max_length=16)
+    name = models.CharField(max_length=16, unique=True)
     possible_values = models.CharField(
         max_length=16,
         choices=PossibleValue.choices,
         default=PossibleValue.NUMERIC
     )
-    value = models.IntegerField()
 
     def __str__(self):
         return self.name
 
 
 class Device(models.Model):
-    identifier = models.CharField(max_length=16, unique=True)
-    parameters = models.ManyToManyField(Parameter, related_name='device_type')
-    description = models.TextField()
+    identifier = models.CharField(max_length=16, unique=True, blank=False)
     alias = models.CharField(max_length=8)
     created_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='created_by_user', default=1)
 
     def __str__(self):
-        return f"{self.name}, added by: {self.created_by.user.username}"
+        return f"{self.identifier}, added by: {self.created_by.user.username}"
 
 
 class System(models.Model):

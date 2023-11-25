@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'whitenoise.runserver_nostatic',
     'db.apps.DbConfig',
-    'django.forms', # Required in the last section.
+    'django.forms',
     'django_filters', # Django-filter
     'crispy_forms',
 ]
@@ -77,7 +77,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'iotmanagement.wsgi.application'
+# WSGI_APPLICATION = 'iotmanagement.wsgi.application'
 
 
 # Database
