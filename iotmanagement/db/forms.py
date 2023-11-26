@@ -9,6 +9,11 @@ class ChangePasswordForm(PasswordChangeForm):
     pass
 
 
+class ModifyParameterForm(forms.Form):
+    parameter_id = forms.IntegerField(widget=forms.HiddenInput())
+    new_value = forms.IntegerField(label='New Value', required=True)
+
+
 class ParameterForm(forms.ModelForm):
     class Meta:
         model = models.Parameter
