@@ -87,7 +87,6 @@ class System(models.Model):
     description = models.TextField()
     number_of_devices = models.PositiveIntegerField(default=0)
     number_of_users = models.PositiveIntegerField(default=0)
-    users = models.ManyToManyField(User, related_name='systems')
     admin = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='system_admin', default=1)
 
     def __str__(self):
@@ -116,11 +115,13 @@ class Notification(models.Model):
 class Invitation(Notification):
     system = models.ForeignKey(System, on_delete=models.CASCADE)
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_invitations', on_delete=models.CASCADE)
-    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_invitations', on_delete=models.CASCADE)
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_invitations',
+                                  on_delete=models.CASCADE)
 
     def accept(self):
         # Add recipient to the system, mark the notification as read, and delete the invitation
-        self.system.users.add(self.recipient)
+        relation = UserSystems(system_id=self.system.id, user_id=self.user.id)
+        self.system.systems_from_user.add(relation, bulk=False)
         self.is_read = True
         self.message = f"Invitation to {self.system.name} accepted."
         self.save()
@@ -141,11 +142,6 @@ class Invitation(Notification):
 class SystemDevices(models.Model):
     system = models.ForeignKey(System, on_delete=models.CASCADE, related_name='system_with_devices')
     device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='devices_in_system')
-
-
-class SystemUsers(models.Model):
-    system = models.ForeignKey(System, on_delete=models.CASCADE, related_name='system_with_users')
-    user = models.ForeignKey(System, on_delete=models.CASCADE, related_name='users_in_system')
 
 
 class UserDevices(models.Model):
@@ -181,14 +177,7 @@ class DeviceParameter(models.Model):
 #     function = models.CharField(choices=Function.choices, default=Function.EQ)
 #     parameter = models.ForeignKey(Parameter, on_delete=models.CASCADE, related_name='parameter')
 
-    # TODO ! ! !
-    # kpi will look something like
-    # if humidity (parameter) > 80 then false
-    # idk if we even should implement it like a table
-
-
-
-
-
-
-
+# TODO ! ! !
+# kpi will look something like
+# if humidity (parameter) > 80 then false
+# idk if we even should implement it like a table

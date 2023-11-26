@@ -8,7 +8,9 @@
                 <div class="d-flex w-100 justify-content-between">
                     <div>
                         <h5 class="mb-1">{{ notification.message }}</h5>
-                        <p class="mb-1"><small>From: {{ notification.sender.username }}</small></p>
+                        {% if notification.type == 'invitation' %}
+                            <p class="mb-1"><small>From: {{ notification.invitation.sender.username }}</small></p>
+                        {% endif %}
                     </div>
                     <small>{{ notification.timestamp|timesince }} ago</small>
                 </div>
