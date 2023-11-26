@@ -43,8 +43,9 @@
                                 <input type="text" class="form-control" id="new_value{{ parameter.id }}" required>
                             </div>
                             <button class="btn btn-primary" onclick="updateValue('{{ parameter.id }}', '{{ device.id }}', '{{ parameter.possible_values }}')">Update</button>
-                        {% endif %}
+                        {% else %}
                             <button class="btn btn-danger mt-2" onclick="deleteParameter('{{ device.id }}','{{ parameter.id }}')">Delete</button>
+                        {% endif %}
                     </div>
                 </div>
             </div>

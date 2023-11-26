@@ -3,11 +3,22 @@
 {% block content %}
   <div class="container">
     {% if username %}
-      <div class="jumbotron mt-5">
-        <h1 class="display-4">Hello, {{ username }}!</h1>
-        <h2 class="lead">Welcome to your Smart Home Management App.</h2>
-        <p class="lead">You can click on the buttons above to see your profile, devices, or systems.</p>
-      </div>
+      {% if broker %}
+        <div class="jumbotron mt-5">
+          <h1 class="display-4">Hello, {{ username }}!</h1>
+          <h2 class="lead">Your role is broker</h2>
+          <p class="lead">
+            You can click on devices button above and modify parameters or devices
+            registered in the system.
+          </p>
+        </div>
+      {% else %}
+        <div class="jumbotron mt-5">
+          <h1 class="display-4">Hello, {{ username }}!</h1>
+          <h2 class="lead">Welcome to your Smart Home Management App.</h2>
+          <p class="lead">You can click on the buttons above to see and manage your profile, devices, or systems.</p>
+        </div>
+      {% endif %}
     {% else %}
       <div class="jumbotron mt-5">
         <h1 class="display-4">Hello</h1>
