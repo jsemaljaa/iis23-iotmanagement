@@ -1,3 +1,5 @@
+from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseForbidden, JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
@@ -5,13 +7,11 @@ from django.urls import reverse
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib import messages
-from django.contrib.auth import get_user_model
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
 
-from django.views.decorators.http import require_POST
-
-from .forms import *
 from . import models
+from .forms import *
 
 
 # Misc helpers for views
@@ -313,6 +313,30 @@ def devices_detail(request, pk):
     return render(request, 'device/detail.html', context)
 
 
+@login_required
+def add_device_to_system(request, system_id):
+    if request.method == 'POST':
+        form = AddDeviceToSystemForm(request.POST)
+        if form.is_valid():
+            system = get_object_or_404(models.System, pk=system_id)
+            form.instance.system = system  # ?
+            device_id = form.data['device']
+            if device_id:
+                device_to_system = form.save()
+                messages.success(request, "Device added to system.")
+            else:
+                messages.error(request, "Please select a device to add.")
+            return redirect('system_detail', pk=system_id)
+    else:
+        form = AddDeviceToSystemForm()
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'system_edit.html', context)
+
+
 def devices_edit(request, pk):
     device = get_object_or_404(models.Device, pk=pk)
 
@@ -414,7 +438,20 @@ def system_delete(request, pk):
 
 def system_detail(request, pk):
     system = get_object_or_404(models.System, pk=pk)
-    return render(request, 'system_detail.html', {'system': system})
+    devices = get_devices_for_system(system)
+    users = get_users_for_system(system)
+
+    return render(request, 'system_detail.html', {'system': system, 'devices': devices, 'users': users})
+
+
+def get_devices_for_system(system: models.System):
+    devices_ids = models.SystemDevices.objects.filter(system_id=system.pk).values('device_id')
+    return models.Device.objects.filter(pk__in=devices_ids)
+
+
+def get_users_for_system(system: models.System):
+    users_ids = models.UserSystems.objects.filter(system_id=system.pk).values('user_id')
+    return models.User.objects.filter(pk__in=users_ids)
 
 
 @login_required
@@ -426,6 +463,10 @@ def system_edit(request, pk):
 
     edit_form = SystemForm(instance=system)
     invite_form = SendInvitationForm()
+    add_device_to_system_form = AddDeviceToSystemForm()
+
+    devices = get_devices_for_system(system)
+    users = get_users_for_system(system)
 
     if request.method == 'POST':
         if 'edit_system' in request.POST:
@@ -448,14 +489,19 @@ def system_edit(request, pk):
                                                                   is_read=False,
                                                                   type='invitation')
 
-
                     return redirect('system_edit', pk=system.pk)
                 except get_user_model().DoesNotExist:
                     messages.error(request, f'User {username} does not exist.')
             return redirect('system_edit', pk=system.pk)
 
-    return render(request, 'system_edit.html', {'system': system, 'edit_form': edit_form, 'invite_form': invite_form})
-
+    return render(request, 'system_edit.html', {
+        'system': system,
+        'edit_form': edit_form,
+        'invite_form': invite_form,
+        'add_device_to_system_form': add_device_to_system_form,
+        'devices': devices,
+        'users': users
+    })
 
 
 @login_required
@@ -464,8 +510,8 @@ def accept_invitation(request, notification_id):
     invitation = notification.invitation
     if request.method == 'POST':
         invitation.accept()
+        models.Notification.objects.create(user=invitation.sender, message=f"Your invitation for {invitation.recipient} has been accepted.")
     return redirect('notifications')
-
 
 
 @login_required
@@ -474,6 +520,7 @@ def decline_invitation(request, notification_id):
     invitation = notification.invitation
     if request.method == 'POST':
         invitation.decline()
+        models.Notification.objects.create(user=invitation.sender, message=f"Your invitation for {invitation.recipient} has been declined.")
     return redirect('notifications')
 
 
@@ -495,23 +542,31 @@ def delete_notification(request, notification_id):
         return redirect('notifications')  # Redirect to the notifications page
     return redirect('notifications')
 
+
 @login_required
 def remove_user(request, system_id, user_id):
     system = get_object_or_404(models.System, pk=system_id)
-    user = get_object_or_404(system.users, pk=user_id)
-    system.users.remove(user)
-    messages.success(request, f"User {user.username} has been removed from the system.")
+    all_users = system.systems_from_user.filter(user_id=user_id)
+    all_users.delete()
     return redirect('system_edit', pk=system_id)
 
 
+@login_required
+def remove_device(request, system_id, device_id):
+    system = get_object_or_404(models.System, pk=system_id)
+    all_devices = system.system_with_devices.filter(device_id=device_id)
+    all_devices.delete()
+    return redirect('system_edit', pk=system_id)
+
+  
 @login_required(login_url='login')
 def parameter_create(request):
     if request.method == 'POST':
         form = ParameterForm(request.POST)
         if form.is_valid():
             parameter = form.save()
-            # parameters = models.Parameter.objects.all()
 
+            # parameters = models.Parameter.objects.all()
             return JsonResponse({'success': True, 'message': 'Parameter created successfully'})
         else:
             print("hello")

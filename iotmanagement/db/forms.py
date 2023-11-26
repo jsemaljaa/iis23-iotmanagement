@@ -1,9 +1,8 @@
 from django import forms
-from django.forms import inlineformset_factory
-
-from . import models
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User
+
+from . import models
 
 
 class ChangePasswordForm(PasswordChangeForm):
@@ -134,7 +133,13 @@ class SystemForm(forms.ModelForm):
         fields = ['name', 'description', 'number_of_devices', 'number_of_users']
 
 
-class SendInvitationForm(forms.Form):
+class SendInvitationForm(forms.ModelForm):
+    class Meta:
+        model = models.Invitation
+        fields = [
+            'username',
+        ]
+
     username = forms.CharField(label='Username', max_length=150)
 
     def clean_username(self):
@@ -146,3 +151,16 @@ class SendInvitationForm(forms.Form):
         except User.DoesNotExist:
             raise forms.ValidationError(f"User with username {username} does not exist.")
         return username
+
+
+class AddDeviceToSystemForm(forms.ModelForm):
+    class Meta:
+        model = models.SystemDevices
+        fields = [
+            'device',
+        ]
+        device = forms.ChoiceField()
+
+    def __init__(self, *args, **kwargs):
+        super(AddDeviceToSystemForm, self).__init__(*args, **kwargs)
+        self.fields['device'].required = True
