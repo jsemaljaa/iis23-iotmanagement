@@ -342,6 +342,7 @@ def add_device_to_system(request, system_id):
     return render(request, 'system_edit.html', context)
 
 
+@login_required(login_url='login')
 def devices_edit(request, pk):
     device = get_object_or_404(models.Device, pk=pk)
 
@@ -393,7 +394,6 @@ def delete_parameter_from_device(request, device_id, parameter_id):
         return JsonResponse({'success': False, 'error_message': str(e)})
 
 
-
 @login_required(login_url='/login/')
 def system_create(request):
     if request.method == 'POST':
@@ -435,7 +435,7 @@ def systems_list(request):
     return render(request, 'systems_list.html', context)
 
 
-@login_required()
+@login_required(login_url='/login/')
 def system_delete(request, pk):
     system = get_object_or_404(models.System, pk=pk)
     if request.method == 'POST':  # Confirm that the form has been submitted
@@ -447,6 +447,7 @@ def system_delete(request, pk):
     return render(request, 'system_delete.html', context)
 
 
+@login_required(login_url='/login/')
 def system_detail(request, pk):
     system = get_object_or_404(models.System, pk=pk)
     devices = get_devices_for_system(system)
@@ -465,12 +466,13 @@ def get_users_for_system(system: models.System):
     return models.User.objects.filter(pk__in=users_ids)
 
 
+
 def get_systems_for_user(user: models.User):
     systems_ids = models.UserSystems.objects.filter(user_id=user.pk).values('system_id')
     return models.System.objects.filter(pk__in=systems_ids)
 
 
-@login_required
+@login_required(login_url='/login/')
 def system_edit(request, pk):
     system = get_object_or_404(models.System, pk=pk)
     # if not system.users.filter(pk=request.user.pk).exists():
@@ -520,7 +522,7 @@ def system_edit(request, pk):
     })
 
 
-@login_required
+@login_required(login_url='/login/')
 def accept_invitation(request, notification_id):
     notification = get_object_or_404(models.Notification, id=notification_id)
     invitation = notification.invitation
@@ -531,7 +533,7 @@ def accept_invitation(request, notification_id):
     return redirect('notifications')
 
 
-@login_required
+@login_required(login_url='/login/')
 def decline_invitation(request, notification_id):
     notification = get_object_or_404(models.Notification, id=notification_id)
     invitation = notification.invitation
@@ -542,7 +544,7 @@ def decline_invitation(request, notification_id):
     return redirect('notifications')
 
 
-@login_required
+@login_required(login_url='/login/')
 def notifications(request):
     notifications = models.Notification.objects.filter(
         user=request.user,
@@ -551,7 +553,7 @@ def notifications(request):
     return render(request, 'notifications.html', {'notifications': notifications})
 
 
-@login_required
+@login_required(login_url='/login/')
 def delete_notification(request, notification_id):
     notification = get_object_or_404(models.Notification, id=notification_id, user=request.user)
 
@@ -561,7 +563,7 @@ def delete_notification(request, notification_id):
     return redirect('notifications')
 
 
-@login_required
+@login_required(login_url='/login/')
 def remove_user(request, system_id, user_id):
     system = get_object_or_404(models.System, pk=system_id)
     all_users = system.systems_from_user.filter(user_id=user_id)
@@ -569,7 +571,7 @@ def remove_user(request, system_id, user_id):
     return redirect('system_edit', pk=system_id)
 
 
-@login_required
+@login_required(login_url='/login/')
 def remove_device(request, system_id, device_id):
     system = get_object_or_404(models.System, pk=system_id)
     all_devices = system.system_with_devices.filter(device_id=device_id)
@@ -616,5 +618,6 @@ def home(request):
 
     if request.user.is_authenticated:
         context['username'] = request.user.username
+        context['broker'] = request.user.userprofile.is_broker()
 
     return render(request, 'home.html', context)
