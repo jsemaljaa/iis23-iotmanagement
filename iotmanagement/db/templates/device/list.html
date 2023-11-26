@@ -14,6 +14,7 @@
     <div class="filters">
         <!-- Filters can go here -->
     </div>
+
     <div class="row">
     {% for device in devices %}
         {% if device.created_by == request.user.userprofile or request.user.userprofile.is_broker %}

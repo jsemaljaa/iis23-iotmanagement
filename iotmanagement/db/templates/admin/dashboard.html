@@ -3,55 +3,86 @@
 
 {% block content %}
   <div class="container mt-5">
-    <h2 class="mb-4">Admin Dashboard</h2>
+    <h1 class="mb-4">Admin Dashboard</h1>
+
+    <hr class="my-3">
 
     <!-- Users Section -->
     <section>
-      <h3>Users</h3>
-      <div class="card-deck">
+      <h2>Users</h2>
+      <div class="row">
         {% for user_entity in users %}
-          <div class="card mb-4">
-            <div class="card-body">
-              <h4 class="card-title">{{ user_entity.username }}</h4>
-              <p class="card-text">{{ user_entity.userprofile.get_role_display }}</p>
-              <a href="{% url 'user_detail' user_entity.id %}" class="btn btn-info btn-sm">Details</a>
-              <a href="{% url 'user_edit' user_entity.id %}" class="btn btn-warning btn-sm">Edit</a>
-              <a href="{% url 'user_delete' user_entity.id %}" class="btn btn-danger btn-sm">Delete</a>
+          <div class="col-md-4 mb-3">
+            <div class="card">
+              <div class="card-header" style="font-size: 18px; font-weight: bold;">
+                {{ user_entity.username }}
+              </div>
+              <div class="card-body">
+                <p class="card-text">Role: {{ user_entity.userprofile.get_role_display }}</p>
+                <a href="{% url 'user_detail' user_entity.id %}" class="btn btn-info btn-sm">Details</a>
+                <a href="{% url 'user_edit' user_entity.id %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'user_delete' user_entity.id %}" class="btn btn-danger btn-sm">Delete</a>
+              </div>
             </div>
           </div>
         {% endfor %}
       </div>
     </section>
+
+    <hr class="my-3">
 
     <!-- Systems Section -->
     <section>
-      <h3>Systems</h3>
-      <div class="card-deck">
+      <h2>Systems</h2>
+      {% if systems %}
+      <div class="row">
         {% for system in systems %}
-          <div class="card mb-4">
-            <div class="card-body">
-              <h4 class="card-title">{{ system.name }}</h4>
-              <a href="{% url 'system_edit' pk=system.pk %}" class="btn btn-primary btn-sm">Edit</a>
-              <a href="{% url 'system_delete' pk=system.pk %}" class="btn btn-danger btn-sm">Delete</a>
+          <div class="col-md-4 mb-3">
+            <div class="card">
+              <div class="card-header" style="font-size: 18px; font-weight: bold;">
+                {{ system.name }}
+              </div>
+              <div class="card-body">
+                <p class="card-text">Owner: {{ system.admin.user.username }}</p>
+                <a href="{% url 'system_detail' pk=system.pk %}" class="btn btn-info btn-sm">Details</a>
+                <a href="{% url 'system_edit' pk=system.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'system_delete' pk=system.pk %}" class="btn btn-danger btn-sm">Delete</a>
+              </div>
             </div>
           </div>
         {% endfor %}
       </div>
+      {% else %}
+        <p>No systems</p>
+      {% endif %}
     </section>
+
+    <hr class="my-3">
 
     <!-- Devices Section -->
     <section>
-      <h3>Devices</h3>
-      <div class="card-deck">
-        {% for device in devices %}
-          <div class="card mb-4">
-            <div class="card-body">
-              <h4 class="card-title">{{ device.name }}</h4>
-              <p class="card-text">{{ device.description }}</p>
+      <h2>Devices</h2>
+      {% if devices %}
+        <div class="row">
+          {% for device in devices %}
+            <div class="col-md-4 mb-3">
+              <div class="card">
+                <div class="card-header" style="font-size: 18px; font-weight: bold;">
+                  {{ device.identifier }}
+                </div>
+                <div class="card-body">
+                  <p class="card-text">Owner: {{ device.created_by.user.username }}</p>
+                  <a href="{% url 'devices_detail' pk=device.id %}" class="btn btn-info btn-sm">Detail</a>
+                  <a href="{% url 'devices_edit' pk=device.id %}" class="btn btn-warning btn-sm">Edit</a>
+                  <a href="{% url 'devices_delete' pk=device.id %}" class="btn btn-danger btn-sm">Delete</a>
+                </div>
+              </div>
             </div>
-          </div>
-        {% endfor %}
-      </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>No devices</p>
+      {% endif %}
     </section>
   </div>
 

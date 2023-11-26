@@ -53,7 +53,11 @@
 
     <hr class="my-3">
 
-    <a href="{% url 'devices_list' %}" class="btn btn-secondary">Back to Devices List</a>
+    {% if 'previous_page' in request.session %}
+        <a href="{{ request.session.previous_page }}" class="btn btn-secondary">Back to Previous Page</a>
+    {% else %}
+        <a href="{% url 'devices_list' %}" class="btn btn-secondary">Back to Devices List</a>
+    {% endif %}
 </div>
 
 <script>

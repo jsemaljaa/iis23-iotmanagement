@@ -277,6 +277,7 @@ def devices_list(request):
     return render(request, 'device/list.html', context)
 
 
+@login_required(login_url='login')
 def devices_delete(request, pk):
     device = get_object_or_404(models.Device, id=pk)
 
@@ -284,9 +285,14 @@ def devices_delete(request, pk):
     if device.created_by == request.user.userprofile:
         device.delete()
 
-    return redirect('devices_list')
+    previous_page = request.session.get('previous_page', None)
+
+    request.session.pop('previous_page', None)
+
+    return redirect(previous_page) if previous_page else redirect('devices_list')
 
 
+@login_required(login_url='login')
 def devices_detail(request, pk):
 
     if request.user.userprofile.is_creator() or request.user.userprofile.is_admin():

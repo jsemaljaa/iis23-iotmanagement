@@ -1,9 +1,11 @@
+<!-- admin/user_edit.html -->
+
 {% extends 'base.html' %}
 
 {% block content %}
   <div class="container mt-5">
     <h2>Editing user: {{ user_to_edit.username }}</h2>
-    <form method="post" action="{% url 'user_edit' user_to_edit.id %}" class="needs-validation" novalidate>
+    <form method="post" action="{% url 'user_edit' user_to_edit.id %}">
       {% csrf_token %}
 
       {% for field in form %}
@@ -23,22 +25,4 @@
     </form>
     <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary mt-2">Back to Admin Dashboard</a>
   </div>
-
-  <script>
-    (function () {
-      'use strict';
-      window.addEventListener('load', function () {
-        var forms = document.getElementsByClassName('needs-validation');
-        var validation = Array.prototype.filter.call(forms, function (form) {
-          form.addEventListener('submit', function (event) {
-            if (form.checkValidity() === false) {
-              event.preventDefault();
-              event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-          }, false);
-        });
-      }, false);
-    })();
-  </script>
 {% endblock %}

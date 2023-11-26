@@ -32,7 +32,7 @@ urlpatterns += [
     path('parameter/delete', views.parameter_delete, name='parameter_delete'),
     path('devices/save_selected_parameters/', views.save_selected_parameters, name='save_selected_parameters'),
     path('devices/<int:device_pk>/parameters/<int:parameter_pk>/modify/', views.update_parameter, name='update_parameter'),
-path('devices/<int:device_id>/parameters/<int:parameter_id>/delete/', views.delete_parameter_from_device, name='delete_parameter'),
+    path('devices/<int:device_id>/parameters/<int:parameter_id>/delete/', views.delete_parameter_from_device, name='delete_parameter'),
 ]
 # user access logic
 urlpatterns += [
