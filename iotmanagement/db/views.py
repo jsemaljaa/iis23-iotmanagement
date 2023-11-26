@@ -285,7 +285,6 @@ def devices_delete(request, pk):
         device.delete()
 
     previous_page = request.session.get('previous_page', None)
-
     request.session.pop('previous_page', None)
 
     return redirect(previous_page) if previous_page else redirect('devices_list')
@@ -440,7 +439,11 @@ def system_delete(request, pk):
     system = get_object_or_404(models.System, pk=pk)
     if request.method == 'POST':  # Confirm that the form has been submitted
         system.delete()
-        return redirect('systems_list')  # Redirect to the systems list page after deletion
+
+        previous_page = request.session.get('previous_page', None)
+        request.session.pop('previous_page', None)
+
+        return redirect(previous_page) if previous_page else redirect('systems_list')
     context = {
         'system': system
     }
@@ -464,7 +467,6 @@ def get_devices_for_system(system: models.System):
 def get_users_for_system(system: models.System):
     users_ids = models.UserSystems.objects.filter(system_id=system.pk).values('user_id')
     return models.User.objects.filter(pk__in=users_ids)
-
 
 
 def get_systems_for_user(user: models.User):
