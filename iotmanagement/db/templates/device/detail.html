@@ -5,46 +5,142 @@
 {% block content %}
 
 <div class="container mt-5">
-  <h1>Device Detail</h1>
+    <h1>Device Detail</h1>
     <ul class="list-group">
-      <li class="list-group-item"><strong>Identifier:</strong> {{ device.identifier }}</li>
+        <li class="list-group-item"><strong>Identifier:</strong> {{ device.identifier }}</li>
 
-      <li class="list-group-item"><strong>Alias:</strong>
-        {% if device.alias %}
-          {{ device.alias }}
-        {% else %}
-          <span style="font-style: italic; color: #808080;">Not provided</span>
-        {% endif %}
-      </li>
-      <li class="list-group-item"><strong>Description:</strong>
-        {% if device.description %}
-          {{ device.description }}
-        {% else %}
-          <span style="font-style: italic; color: #808080;">Not provided</span>
-        {% endif %}
-      </li>
+        <li class="list-group-item"><strong>Alias:</strong>
+            {% if device.alias %}
+                {{ device.alias }}
+            {% else %}
+                <span style="font-style: italic; color: #808080;">Not provided</span>
+            {% endif %}
+        </li>
+        <li class="list-group-item"><strong>Description:</strong>
+            {% if device.description %}
+                {{ device.description }}
+            {% else %}
+                <span style="font-style: italic; color: #808080;">Not provided</span>
+            {% endif %}
+        </li>
     </ul>
 
     <hr class="my-3">
 
-  <h3>Parameters</h3>
-  <div class="row">
-        {% for parameter in parameters %}
-          <div class="col-md-4 mb-3">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">{{ parameter.name }}</h5>
-                <p class="card-text">{{ parameter.get_possible_values_display }}</p>
-              </div>
+    <h3>Parameters</h3>
+    <div class="row">
+        {% for parameter, value in data %}
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ parameter.name }}</h5>
+                        <p class="card-text">{{ parameter.get_possible_values_display }}</p>
+                        <p class="card-text">Current Value: <span id="value{{ parameter.id }}">{{ value }}</span></p>
+                        {% if request.user.userprofile.is_broker %}
+                            <div class="alert alert-danger" id="error-message{{ parameter.id }}" style="display: none;"></div>
+                            <div class="form-group">
+                                <label for="new_value{{ parameter.id }}">New Value:</label>
+                                <input type="text" class="form-control" id="new_value{{ parameter.id }}" required>
+                            </div>
+                            <button class="btn btn-primary" onclick="updateValue('{{ parameter.id }}', '{{ device.id }}', '{{ parameter.possible_values }}')">Update</button>
+                        {% endif %}
+                            <button class="btn btn-danger mt-2" onclick="deleteParameter('{{ device.id }}','{{ parameter.id }}')">Delete</button>
+                    </div>
+                </div>
             </div>
-          </div>
         {% endfor %}
-  </div>
+    </div>
 
-  <hr class="my-3">
+    <hr class="my-3">
 
-  <a href="{% url 'devices_list' %}" class="btn btn-secondary">Back to Devices List</a>
-
+    <a href="{% url 'devices_list' %}" class="btn btn-secondary">Back to Devices List</a>
 </div>
+
+<script>
+    function deleteParameter(deviceId, parameterId) {
+    var confirmDelete = confirm("Are you sure you want to delete this parameter?");
+
+    if (confirmDelete) {
+        $.ajax({
+            type: 'POST',
+            url: `/devices/${deviceId}/parameters/${parameterId}/delete/`,
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Optionally, you can remove the card from the UI
+                    // Update the UI as needed
+                    // ...
+                } else {
+                    console.log(response.error_message);
+                    alert('Error deleting parameter: ' + response.error_message);
+                }
+            },
+            error: function(error) {
+                alert('Error deleting parameter: ' + error.responseText);
+            }
+        });
+    }
+}
+
+    function updateValue(parameterId, deviceId, parameterValues) {
+        // Get the new value from the input field
+        var newValue = $('#new_value' + parameterId).val();
+
+        if (newValue.trim() === '') {
+            var err = $('#error-message' + parameterId);
+            err.text('New value cannot be empty.');
+            err.show();
+            return;
+        }
+
+        if (parameterValues.trim() === "P") {
+            if (newValue < 0 || newValue > 100) {
+                var err = $('#error-message' + parameterId);
+                err.text('Percentage values must be between 0 and 100.');
+                err.show();
+                return;
+            }
+        }
+
+        if (parameterValues.trim() === 'N') {
+            if (newValue < -50 || newValue > 50) {
+                var err = $('#error-message' + parameterId);
+                err.text('Numeric values must be between -50 and 50.');
+                err.show();
+                return;
+            }
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: `/devices/${deviceId}/parameters/${parameterId}/modify/`,
+            data: {
+                'parameter_id': parameterId,
+                'new_value': newValue,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#new_value' + parameterId).val('');
+                    $('#value' + parameterId).text(response.new_value);
+                    var err =$('#error-message' + parameterId);
+                    err.text('');
+                    err.hide();
+                } else {
+                    console.log(response.error_message);
+                    alert('Error updating parameter: ' + response.error_message);
+                }
+            },
+            error: function(error) {
+                alert('Error updating parameter: ' + error.responseText);
+            }
+        });
+    }
+</script>
+
 
 {% endblock %}

@@ -47,12 +47,22 @@
                 {% if user.is_authenticated %}
                     {% if user.userprofile.is_admin %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">Admin Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'devices_list' %}">Devices</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'systems_list' %}">Systems</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'notifications' %}"><i class="fas fa-bell"></i></a></li>
+                    {% elif not user.userprofile.is_broker %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'devices_list' %}">Devices</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'systems_list' %}">Systems</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'notifications' %}"><i class="fas fa-bell"></i></a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'devices_list' %}">Devices</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
                     {% endif %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'devices_list' %}">Devices</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'systems_list' %}">Systems</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'notifications' %}"><i class="fas fa-bell"></i></a></li>
                 {% else %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'systems_list' %}">Systems</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
