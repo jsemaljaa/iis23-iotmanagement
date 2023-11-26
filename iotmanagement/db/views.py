@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
+from django.http import HttpResponseForbidden, JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth import login as auth_login, logout as auth_logout
@@ -17,6 +17,10 @@ from . import models
 # Misc helpers for views
 def admin_required(user):
     return user.is_authenticated and user.userprofile.is_admin
+
+
+def broker_required(user):
+    return user.is_authenticated and user.userprofile.is_broker
 
 
 @user_passes_test(admin_required, login_url='login')
@@ -176,7 +180,6 @@ def signup(request):
             user.user = form.cleaned_data['username']
             user.save()
 
-            messages.success(request, 'User created successfully!')
             request.session['user_just_created'] = True
 
             auth_login(request, user)
@@ -285,19 +288,26 @@ def devices_delete(request, pk):
 
 
 def devices_detail(request, pk):
-    device = get_object_or_404(models.Device, id=pk, created_by=request.user.userprofile)
+
+    if request.user.userprofile.is_creator() or request.user.userprofile.is_admin():
+        device = get_object_or_404(models.Device, id=pk, created_by=request.user.userprofile)
+
+    if request.user.userprofile.is_broker():
+        device = get_object_or_404(models.Device, id=pk)
 
     device_parameters = models.DeviceParameter.objects.filter(device=device)
 
-    print(device_parameters)
-
     parameters = [record.parameter for record in device_parameters]
+    values = [record.value for record in device_parameters]
 
-    print(parameters)
+    data = list(zip(parameters, values))
+
+    for parameter, value in data:
+        print(f"Parameter {parameter} with {value}")
 
     context = {
         'device': device,
-        'parameters': parameters
+        'data': data
     }
 
     return render(request, 'device/detail.html', context)
@@ -315,6 +325,44 @@ def devices_edit(request, pk):
         form = DeviceForm(instance=device)
 
     return render(request, 'device/edit.html', {'form': form, 'device': device})
+
+
+@login_required(login_url='login')
+def update_parameter(request, device_pk, parameter_pk):
+    device_parameter = get_object_or_404(models.DeviceParameter, device_id=device_pk, parameter_id=parameter_pk)
+
+    if request.method == 'POST':
+        form = ModifyParameterForm(request.POST)
+        if form.is_valid():
+            device_parameter.value = form.cleaned_data['new_value']
+            device_parameter.save()
+            return JsonResponse({
+                'success': True,
+                'parameter_id': device_parameter.parameter.id,
+                'new_value': device_parameter.value,
+            })
+        else:
+            return JsonResponse({'success': False, 'error_message': 'Invalid form data'})
+
+    return JsonResponse({'success': False, 'error_message': 'Invalid request method'})
+
+
+@login_required(login_url='/login/')
+def delete_parameter_from_device(request, device_id, parameter_id):
+    device = get_object_or_404(models.Device, id=device_id)
+    parameter = get_object_or_404(models.Parameter, id=parameter_id)
+
+    deviceparameter = get_object_or_404(models.DeviceParameter, device=device, parameter=parameter)
+
+    try:
+        deviceparameter.delete()
+        # device.parameters.remove(parameter)
+        # parameter.delete()
+
+        return redirect('devices_detail', pk=device.id)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error_message': str(e)})
+
 
 
 @login_required(login_url='/login/')
@@ -455,15 +503,14 @@ def remove_user(request, system_id, user_id):
     messages.success(request, f"User {user.username} has been removed from the system.")
     return redirect('system_edit', pk=system_id)
 
+
 @login_required(login_url='login')
 def parameter_create(request):
     if request.method == 'POST':
         form = ParameterForm(request.POST)
         if form.is_valid():
             parameter = form.save()
-            parameters = models.Parameter.objects.all()
-
-
+            # parameters = models.Parameter.objects.all()
 
             return JsonResponse({'success': True, 'message': 'Parameter created successfully'})
         else:

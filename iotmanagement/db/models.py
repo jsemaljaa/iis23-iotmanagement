@@ -6,7 +6,6 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 
-
 # Create your models here.
 
 
@@ -16,7 +15,6 @@ class UserProfile(models.Model):
         ('creator', 'Creator'),
         ('user', 'User'),
         ('broker', 'Broker'),
-        ('visitor', 'Visitor'),
     ]
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
