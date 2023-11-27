@@ -1,1 +1,1 @@
-web: gunicorn iotmanagement.wsgi
+web: gunicorn iotmanagement.wsgi --log-file -
