@@ -460,7 +460,7 @@ def get_devices_for_system(system: models.System):
 
 
 def get_users_for_system(system: models.System):
-    users_ids = models.UserSystems.objects.filter(system_id=system.pk).values('user_id')
+    users_ids = models.UserSystems.objects.filter(system=system).values('user_id')
     return models.User.objects.filter(pk__in=users_ids)
 
 
