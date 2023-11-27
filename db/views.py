@@ -395,7 +395,6 @@ def system_create(request):
         form = CreateHomeForm(request.POST)
         if form.is_valid():
             new_system = form.save(commit=False)
-            print(new_system.admin)
             new_system.admin = request.user.userprofile
             new_system.save()
             models.UserSystems.objects.create(user_id=request.user.id, system_id=new_system.id)
