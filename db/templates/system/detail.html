@@ -29,6 +29,8 @@
                     {% else %}
                             <li class="list-group-item">User count: {{ users|length }}</li>
                         {% endif %}
+                            {% else %}
+                            <li class="list-group-item">User count: {{ users|length }}</li>
                         {% endif %}
 
 
@@ -55,8 +57,14 @@
                                                 <li class="list-group-item">
                                                     <strong>{{ parameter.parameter.name }}:</strong> {{ parameter.value }}
                                                 </li>
-                                                <li class="list-group-item">
-                                                    <strong>Status:</strong>
+                                                 <li class="list-group-item success">
+                                                    <strong>Status:
+                                                        {% if device_info.status == True %}
+                                                            OK
+                                                        {% else %}
+                                                            Error
+                                                        {% endif %}</strong>
+
                                                 </li>
                                             {% endfor %}
                                         </ul>
@@ -65,10 +73,12 @@
                                     <li class="list-group-item">No devices.</li>
                                     {% endfor %}
 
-                    {% else %}
+                                {% else %}
                                 <li class="list-group-item">Device count: {{ devices|length }}</li>
                         {% endif %}
-                                                {% endif %}
+                            {% else %}
+                                <li class="list-group-item">Device count: {{ devices|length }}</li>
+                        {% endif %}
                     </ul>
 
                 </div>
