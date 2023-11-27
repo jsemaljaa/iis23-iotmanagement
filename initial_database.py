@@ -15,7 +15,7 @@ from db.models import UserProfile, \
                        Invitation, \
                     SystemDevices, \
                       UserSystems, \
-                  DeviceParameter  \
+                  DeviceParameter, \
 
 
 
@@ -60,7 +60,12 @@ def create_system_devices(system, device):
 
 
 def create_user_systems(user, system):
-    return UserSystems.objects.create(user=user, system=system)
+    user_systems = UserSystems.objects.create(user=user, system=system)
+
+    system.number_of_users += 1
+    system.save()
+
+    return user_systems
 
 
 def create_device_parameter(device, parameter, value):
