@@ -397,7 +397,7 @@ def system_create(request):
             new_system = form.save(commit=False)
             new_system.admin = request.user.userprofile
             new_system.save()
-            models.UserSystems.objects.create(user_id=request.user.id, system_id=new_system.id)
+            models.UserSystems.objects.create(user_id=request.userprofile.user_id, system_id=new_system.id)
             return redirect('systems_list')
     else:
         form = CreateHomeForm()
