@@ -8,7 +8,6 @@ from django.contrib.postgres.fields import JSONField
 
 # Create your models here.
 
-
 class UserProfile(models.Model):
     ROLE_CHOICES = [
         ('admin', 'Admin'),
@@ -39,24 +38,6 @@ class UserProfile(models.Model):
 
 class Parameter(models.Model):
     class PossibleValue(models.TextChoices):
-        """
-            NUMERIC = "N", "Numeric"
-            PERCENTAGE = "P", "Percentage"
-            ON_OFF = "OO", "On/Off"
-            STRING = "S", "String"
-            BOOLEAN = "B", "Boolean"
-            COLOR = "C", "Color"
-            TIMESTAMP = "TS", "Timestamp"
-            DURATION = "D", "Duration"
-            DISTANCE = "DI", "Distance"
-            WEIGHT = "W", "Weight"
-            VOLTAGE = "V", "Voltage"
-            CURRENT = "I", "Current"
-            PRESSURE = "P", "Pressure"
-            TEMPERATURE = "T", "Temperature"
-            HUMIDITY = "H", "Humidity"
-            SPEED = "SP", "Speed"
-        """
         NUMERIC = "N", _("Numeric")
         PERCENTAGE = "P", _("Percentage")
 

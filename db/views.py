@@ -292,7 +292,7 @@ def devices_detail(request, pk):
     if request.user.userprofile.is_creator() or request.user.userprofile.is_admin():
         device = get_object_or_404(models.Device, id=pk, created_by=request.user.userprofile)
 
-    if request.user.userprofile.is_broker():
+    if request.user.userprofile.is_broker() or request.user.userprofile:
         device = get_object_or_404(models.Device, id=pk)
 
     device_parameters = models.DeviceParameter.objects.filter(device=device)
@@ -334,7 +334,7 @@ def add_device_to_system(request, system_id):
         'form': form,
     }
 
-    return render(request, 'system_edit.html', context)
+    return render(request, 'system/edit.html', context)
 
 
 @login_required(login_url='login')
@@ -345,7 +345,7 @@ def devices_edit(request, pk):
         form = DeviceForm(request.POST, instance=device)
         if form.is_valid():
             form.save()
-            return redirect('devices_detail', pk=pk)  # Redirect to the detail page after editing
+            return redirect('devices_detail', pk=pk)
     else:
         form = DeviceForm(instance=device)
 
@@ -406,7 +406,7 @@ def system_create(request):
         'form': form
     }
 
-    return render(request, 'system_create.html', context)
+    return render(request, 'system/create.html', context)
 
 
 def systems_list(request):
@@ -426,13 +426,13 @@ def systems_list(request):
         'query': query,
         'all_systems': all_systems,
     }
-    return render(request, 'systems_list.html', context)
+    return render(request, 'system/list.html', context)
 
 
 @login_required(login_url='/login/')
 def system_delete(request, pk):
     system = get_object_or_404(models.System, pk=pk)
-    if request.method == 'POST':  # Confirm that the form has been submitted
+    if request.method == 'POST':
         system.delete()
 
         previous_page = request.session.get('previous_page', None)
@@ -442,7 +442,7 @@ def system_delete(request, pk):
     context = {
         'system': system
     }
-    return render(request, 'system_delete.html', context)
+    return render(request, 'system/delete.html', context)
 
 
 def system_detail(request, pk):
@@ -450,7 +450,7 @@ def system_detail(request, pk):
     devices = get_devices_for_system(system)
     users = get_users_for_system(system)
 
-    return render(request, 'system_detail.html', {'system': system, 'devices': devices, 'users': users})
+    return render(request, 'system/detail.html', {'system': system, 'devices': devices, 'users': users})
 
 
 def get_devices_for_system(system: models.System):
@@ -508,7 +508,7 @@ def system_edit(request, pk):
                     messages.error(request, f'User {username} does not exist.')
             return redirect('system_edit', pk=system.pk)
 
-    return render(request, 'system_edit.html', {
+    return render(request, 'system/edit.html', {
         'system': system,
         'edit_form': edit_form,
         'invite_form': invite_form,
@@ -555,7 +555,7 @@ def delete_notification(request, notification_id):
 
     if request.method == 'POST':
         notification.delete()
-        return redirect('notifications')  # Redirect to the notifications page
+        return redirect('notifications')
     return redirect('notifications')
 
 
@@ -564,7 +564,7 @@ def remove_user(request, system_id, user_id):
     system = get_object_or_404(models.System, pk=system_id)
     all_users = system.systems_from_user.filter(user_id=user_id)
     all_users.delete()
-    return redirect('system_edit', pk=system_id)
+    return redirect('system/edit', pk=system_id)
 
 
 @login_required(login_url='/login/')
@@ -599,8 +599,6 @@ def save_selected_parameters(request):
         selected_parameters = request.POST.getlist('selected_parameters[]', [])
 
         request.session['device_selected_parameters'] = selected_parameters
-
-        # print(request.session['device_selected_parameters'])
 
         # print(request.session['device_selected_parameters'])
 
