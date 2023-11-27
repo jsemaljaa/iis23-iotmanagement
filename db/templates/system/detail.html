@@ -21,14 +21,20 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         {% if user.is_authenticated %}
-                            {% for user in users %}
-                                <li class="list-group-item">{{ user.username }}</li>
-                                {% empty %}
-                                <li class="list-group-item">No users.</li>
-                            {% endfor %}
-                        {% else %}
+                            {% if system.admin.user == request.user or request.user.userprofile.is_admin or request.user in users%}
+
+                                {% for user in users %}
+                                    <li class="list-group-item">{{ user.username }}</li>
+                                    {% empty %}
+                                    <li class="list-group-item">No users.</li>
+                                {% endfor %}
+                    {% else %}
                             <li class="list-group-item">User count: {{ users|length }}</li>
                         {% endif %}
+                        {% endif %}
+
+
+
                     </ul>
                 </div>
             </div>
@@ -40,17 +46,67 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         {% if user.is_authenticated %}
-                            {% for device in devices %}
-                                <li class="list-group-item">{{ device.identifier }}</li>
-                                {% empty %}
-                                <li class="list-group-item">No devices.</li>
-                            {% endfor %}
-                        {% else %}
-                            <li class="list-group-item">Device count: {{ devices|length }}</li>
+                            {% if system.admin.user == request.user or request.user.userprofile.is_admin or request.user in users%}
+                                    {% for device_info in devices_with_parameters %}
+                                    <div class="card mb-3">
+                                        <div class="card-header">
+                                            {{ device_info.device.identifier }}
+                                        </div>
+                                        <ul class="list-group list-group-flush">
+                                            {% for parameter in device_info.parameters %}
+                                                <li class="list-group-item">
+                                                    <strong>{{ parameter.parameter.name }}:</strong> {{ parameter.value }}
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <strong>Status:</strong>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                        </div>
+                                        {% empty %}
+                                    <li class="list-group-item">No devices.</li>
+                                    {% endfor %}
+
+                    {% else %}
+                                <li class="list-group-item">Device count: {{ devices|length }}</li>
                         {% endif %}
+                                                {% endif %}
+
+
+
+
                     </ul>
+
                 </div>
             </div>
+            <div class="col">
+
+<!-- Back to System List Button -->
+    <div class="row mb-2">
+        <div class="col">
+            <a href="{% url 'systems_list' %}" class="btn btn-secondary">Back to System List</a>
         </div>
+    </div>
+
+    <!-- Ask for Access Button -->
+        <div class="row mb-2">
+            <div class="col">
+            {% if user.is_authenticated %}
+            {% if not system.admin.user == request.user or not request.user.userprofile.is_admin %}
+                {% if not request.user in users%}
+
+                <form action="{% url 'request_participation' system.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Ask for Access</button>
+                </form>
+            {% endif %}
+                    {% endif %}
+                        {% endif %}
+
+
+        </div>
+    </div>
+</div>
+</div>
     </div>
 {% endblock %}
