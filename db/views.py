@@ -317,7 +317,6 @@ def add_device_to_system(request, system_id):
             device_id = form.data['device']
             if device_id:
                 device_to_system = form.save()
-                messages.success(request, "Device added to system.")
             else:
                 messages.error(request, "Please select a device to add.")
             return redirect('system_detail', pk=system_id)
@@ -329,6 +328,8 @@ def add_device_to_system(request, system_id):
     }
 
     return render(request, 'system/edit.html', context)
+
+
 
 
 @login_required(login_url='login')
@@ -390,6 +391,7 @@ def system_create(request):
 
             user = request.user.userprofile
             user.role = 'creator'
+            user.save()
 
             user.save()
 
@@ -411,7 +413,7 @@ def system_create(request):
 def systems_list(request):
     request.session['previous_page'] = request.path
     query = request.GET.get('q', '')
-    all_systems = True if 'all_systems' in request.GET else False
+    all_systems = False if 'all_systems' in request.GET else True
     if all_systems:
         systems = models.System.objects.all()
     else:
@@ -446,10 +448,29 @@ def system_delete(request, pk):
 
 def system_detail(request, pk):
     system = get_object_or_404(models.System, pk=pk)
-    devices = get_devices_for_system(system)
-    users = get_users_for_system(system)
 
-    return render(request, 'system/detail.html', {'system': system, 'devices': devices, 'users': users})
+    devices = get_devices_for_system(system)
+    invite_form = SendInvitationForm()
+
+    devices_with_parameters = []
+
+    for device in devices:
+        device_parameters = models.DeviceParameter.objects.filter(device=device)
+
+        device_with_parameters = {
+            'device': device,
+            'parameters': device_parameters
+        }
+
+        devices_with_parameters.append(device_with_parameters)
+
+    users = get_users_for_system(system) 
+    return render(request, 'system/detail.html', {
+        'system': system,
+        'devices': devices,
+        'devices_with_parameters': devices_with_parameters,
+        'users': users
+    })
 
 
 def get_devices_for_system(system: models.System):
@@ -459,13 +480,13 @@ def get_devices_for_system(system: models.System):
 
 def get_users_for_system(system: models.System):
     users_ids = models.UserSystems.objects.filter(system=system).values('user_id')
-    print(users_ids)
     return models.User.objects.filter(pk__in=users_ids)
 
 
 def get_systems_for_user(user: models.User):
     systems_ids = models.UserSystems.objects.filter(user_id=user.pk).values('system_id')
     return models.System.objects.filter(pk__in=systems_ids)
+
 
 
 @login_required(login_url='/login/')
@@ -480,6 +501,7 @@ def system_edit(request, pk):
     users = get_users_for_system(system)
 
     if request.method == 'POST':
+
         if 'edit_system' in request.POST:
             edit_form = SystemForm(request.POST, instance=system)
             if edit_form.is_valid():
@@ -500,7 +522,7 @@ def system_edit(request, pk):
                                                                   type='invitation')
 
                     return redirect('system_edit', pk=system.pk)
-                except get_user_model().DoesNotExist:
+                except models.UserProfile.DoesNotExist:
                     messages.error(request, f'User {username} does not exist.')
             return redirect('system_edit', pk=system.pk)
 
@@ -513,6 +535,43 @@ def system_edit(request, pk):
         'users': users
     })
 
+@login_required
+def request_participation(request, system_id):
+    system = get_object_or_404(models.System, id=system_id)
+    owner = models.UserProfile.objects.get(user__username=system.admin.user.username)
+    notification_message = f"{request.user.username} wants an access to {system.name}."
+
+    models.ParticipationRequest.objects.create(system=system, sender=request.user.userprofile,
+                                                                  user_id=owner.id,
+                                                                  recipient=owner,
+                                                                  user=owner, message=notification_message,
+                                                                  is_read=False,
+                                                                  type='request')
+    return redirect('system_detail', pk=system_id)
+
+@login_required(login_url='/login/')
+def accept_request(request, notification_id):
+    notification = get_object_or_404(models.Notification, id=notification_id)
+    access = notification.participationrequest
+    if request.method == 'POST':
+        user_accepting = request.user.userprofile
+        access.accept()
+        models.Notification.objects.create(user=access.sender,
+                                           message=f"Your request for {access.system.name} has been accepted.")
+    return redirect('notifications')
+
+
+@login_required(login_url='/login/')
+def decline_request(request, notification_id):
+    notification = get_object_or_404(models.Notification, id=notification_id)
+    access = notification.participationrequest
+    if request.method == 'POST':
+        user_accepting = request.user.userprofile
+        access.decline()
+        models.Notification.objects.create(user=access.sender,
+                                           message=f"Your request for {access.system.name} has been declined.")
+    return redirect('notifications')
+
 
 @login_required(login_url='/login/')
 def accept_invitation(request, notification_id):
@@ -522,7 +581,7 @@ def accept_invitation(request, notification_id):
         user_accepting = request.user.userprofile
         invitation.accept()
         models.Notification.objects.create(user=invitation.sender,
-                                           message=f"Your invitation for {invitation.recipient} has been accepted.")
+                                           message=f"Your invitation for {invitation.recipient.user.username} has been accepted.")
     return redirect('notifications')
 
 
@@ -533,7 +592,7 @@ def decline_invitation(request, notification_id):
     if request.method == 'POST':
         invitation.decline()
         models.Notification.objects.create(user=invitation.sender,
-                                           message=f"Your invitation for {invitation.recipient} has been declined.")
+                                           message=f"Your invitation for {invitation.recipient.user.username} has been declined.")
     return redirect('notifications')
 
 
@@ -561,7 +620,7 @@ def remove_user(request, system_id, user_id):
     system = get_object_or_404(models.System, pk=system_id)
     all_users = system.systems_from_user.filter(user_id=user_id)
     all_users.delete()
-    return redirect('system/edit', pk=system_id)
+    return redirect('system_edit', pk=system_id)
 
 
 @login_required(login_url='/login/')

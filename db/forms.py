@@ -136,7 +136,22 @@ class CreateHomeForm(forms.ModelForm):
 class SystemForm(forms.ModelForm):
     class Meta:
         model = models.System
-        fields = ['name', 'description', 'number_of_devices', 'number_of_users']
+        fields = ['name', 'description']
+
+    def __init__(self, *args, **kwargs):
+        super(SystemForm, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = False
+
+        self.fields['name'].widget = forms.TextInput(attrs={
+            'placeholder': '(required)',
+            'required': True
+        })
+        self.fields['description'].widget = forms.TextInput(attrs={
+            'placeholder': '(optional)',
+            'required': False
+        })
+
 
 
 class SendInvitationForm(forms.ModelForm):
@@ -159,6 +174,7 @@ class SendInvitationForm(forms.ModelForm):
         return username
 
 
+
 class AddDeviceToSystemForm(forms.ModelForm):
     class Meta:
         model = models.SystemDevices
@@ -170,3 +186,4 @@ class AddDeviceToSystemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AddDeviceToSystemForm, self).__init__(*args, **kwargs)
         self.fields['device'].required = True
+
