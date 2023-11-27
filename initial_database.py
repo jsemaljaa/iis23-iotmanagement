@@ -15,8 +15,7 @@ from db.models import UserProfile, \
                        Invitation, \
                     SystemDevices, \
                       UserSystems, \
-                  DeviceParameter, \
-
+                  DeviceParameter  \
 
 
 def create_user(username, email, password, name, surname, location, role):
