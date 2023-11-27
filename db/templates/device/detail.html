@@ -41,7 +41,7 @@
                         {% if request.user.userprofile == device.created_by or request.user.userprofile.is_admin %}
                             <p class="card-text">Current Value: <span id="value{{ parameter.id }}">{{ value }}</span></p>
                         {% endif %}
-                        {% if request.user.userprofile.is_broker %}
+                        {% if request.user.userprofile.is_broker or request.user.userprofile.is_admin %}
                             <div class="alert alert-danger" id="error-message{{ parameter.id }}" style="display: none;"></div>
                             <div class="form-group">
                                 <label for="new_value{{ parameter.id }}">New Value:</label>

@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Projekt IIS</title>
+    <style type="text/css">
+     table { border-collapse: collapse; }
+     td, th { border: 1px solid black; padding: 0.3em 0.5em; text-align: left; }
+     dt { font-weight: bold; margin-top: 0.5em; }
+    </style>
+</head>
+<body>
+
+
+<h1>IoT: správa zařízení</h1>
+
+<dl>
+ <dt>Autoři</dt>
+ <dd>Maryia Mazurava
+     <a href="mailto:xmazur08@stud.fit.vutbr.cz">xmazur08@stud.fit.vutbr.cz</a> - 
+    Správa systémů, notifikace, KPI, pozvánky, video návod, schéma relační databáze, dokumentace
+ </dd>
+ <dd>Alina Vinogradova
+     <a href="mailto:xvinog00@stud.fit.vutbr.cz">xvinog00@stud.fit.vutbr.cz</a> -
+    Správa uživatelů, admin panel, zařízení, parametry zařízení, generováni kostry Django, databáze, Heroku deployment, dokumentace
+ </dd>
+ <dt>URL aplikace</dt>
+ <dd><a href="https://iotmanagement-235370eeb076.herokuapp.com/">https://iotmanagement-235370eeb076.herokuapp.com/</a></dd>
+</dl>
+
+<h2>Uživatelé systému pro testování</h2>
+<table>
+<tr><th>Login</th><th>Heslo</th><th>Role</th></tr>
+<tr><td>admin</td><td>admin</td><td>Administrátor</td></tr>
+<tr><td>user</td><td>user</td><td>Uživatel</td></tr>
+<tr><td>creator</td><td>creator</td><td>Správce systému</td></tr>
+<tr><td>broker</td><td>broker</td><td>Broker</td></tr>
+</table>
+
+<h3>Video</h3>
+
+<p>!!! TODO !!!</p>
+
+<h2>Implementace</h2>
+<p> 
+    Projekt využívá architekturu Django, která je založena na konceptu MVC (Model-View-Controller).
+    V tomto frameworku jsou pohledy (views) více zaměřeny na funkce kontrolleru a šablony (templates) slouží jako pohledy.
+    Hlavní funkce projektu se nachází v souborech url.py, kde popisujeme URL našeho informačního systému, a také soubory views.py a models.py. 
+    Pro frontend jsme použili framework Bootstrap. Některé HTML šablony používají ke komunikaci se serverovou částí naší aplikace také JavaScript a AJAX.
+</p>
+
+<p>
+    Pro práci s autentizací a autorizací jsme použili standardní model Django User, 
+    na jehož základě jsme vytvořili vlastní třídu UserProfile, která obsahuje další údaje o uživateli a také role.
+</p>
+
+<h4>models.py</h4>
+<p>
+    V souboru je implementována databázová schéma pomocí Django modelů. 
+    Definujeme zde třídy, které jsou podtřídami models.Model a obsahují atributy definované pomocí různých polí 
+    a také vytváříme vztahy mezi entitami.
+</p>
+
+<h4>views.py</h4>
+<p>
+    Soubor obsahuje logiku aplikace pro správu uživatelů, zařízení, systémů a další funkcionalitu aplikace.
+    Většina funkcí slouží k manipulaci s daty z databáze (operace CRUD) a jejich přenosu do View (templates v Django).
+    Pro práci s operacemi Create a Update jsme také dodatečně vytvořili vlastní formuláře na základě Django Forms, které se používají v některých pohledech našeho projektu.
+</p>
+
+
+<h3>Databáze</h3>
+
+<p> !!! TODO !!!</p>
+
+<h2>Instalace</h2>
+
+<h3>Softwarové požadavky</h3>
+<ul>
+    <li>Python 3 (3.12.0)</li>
+    <li>PostgreSQL</li>
+    <li>venv</li>
+</ul>
+
+<h3>Postup</h3>
+
+<h3>Je nutné mít lokálně vytvořenou databázi PostgreSQL!</h3>
+
+<h4>Nastavení virtuálního prostředí (kořenová složka)</h4>
+<ul>
+    <li>python -m venv venv</li>
+</ul>
+
+<h4>Aktivace venv (podle systému)</h4>
+<ul>
+    <li><strong>WINDOWS:</strong> .\venv\Scripts\activate</li>
+    <li><strong>UNIX:</strong> source venv/bin/activate</li>
+</ul>
+
+<h4>Instalace požadavků</h4>
+<ul>
+    <li>pip install -r requirements.txt</li>
+</ul>
+
+<h4>Nastavení databáze</h4>
+<ul>
+    <li>Ve složce <strong>iotmanagement</strong> naleznete soubor <strong>.env</strong></li>
+    <li>Pak v něm zadejte údaje pro připojení k lokální databázi (DB_NAME, DB_USER, atd.)</li>
+    <li>Po úspěšném připojení vytvořte v databázi tabulky: <strong>python manage.py migrate</strong></li>
+    <li>Spusťte skript pro naplnění databáze původními daty: <strong>python initial_database.py</strong></li>
+</ul>
+
+<h4>Spuštění serveru</h4>
+<ul>
+    <li>python manage.py runserver</li>
+</ul>
+
+<h3>Po úspěšné konfiguraci by měl být server dostupný na adrese: <a href="127.0.0.1:8000">127.0.0.1:8000</a></h3>
+
+<h2>Známé problémy</h2>
+<p>Zde popište, které body zadání nejsou implementovány a z jakého důvodu. Např. „Z časových důvodů nebyla implementována správa uživatelů.“ Pomůžete tím zrychlit hodnocení, když neimplementované funkce nebudeme muset dlouze hledat.</p>
+</body>
+</html>

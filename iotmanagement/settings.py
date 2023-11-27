@@ -45,7 +45,15 @@ INSTALLED_APPS = [
     'django.forms',
     'django_filters',
     'crispy_forms',
+    'django_extensions'
 ]
+
+GRAPH_MODELS = {
+    'all_applications': True,
+    'graph_models': True,
+    'output': 'erd.png',
+    'dot_command': 'D:\software\Graphviz\bin'
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

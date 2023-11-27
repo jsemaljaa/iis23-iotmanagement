@@ -41,10 +41,6 @@ class UserProfileForm(UserCreationForm):
         model = User
         fields = [
             'username',
-            # 'name',
-            # 'surname',
-            # 'location',
-            # 'email',
             'password1',
             'password2'
         ]
@@ -62,7 +58,6 @@ class UserProfileForm(UserCreationForm):
             label="Password",
             widget=forms.PasswordInput,
             error_messages={
-                # 'required': 'Your custom required error message',
                 'password_too_short': 'Your custom password is too short',
                 'password_common': 'Your custom password is too common',
             }
@@ -135,7 +130,6 @@ class CreateHomeForm(forms.ModelForm):
         model = models.System
         fields = [
             'name',
-            # 'description'
         ]
 
 

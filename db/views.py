@@ -276,8 +276,7 @@ def devices_list(request):
 def devices_delete(request, pk):
     device = get_object_or_404(models.Device, id=pk)
 
-    # Check if the user has permission to delete the device
-    if device.created_by == request.user.userprofile:
+    if device.created_by == request.user.userprofile or request.user.userprofile.is_admin():
         device.delete()
 
     previous_page = request.session.get('previous_page', None)
@@ -288,14 +287,6 @@ def devices_delete(request, pk):
 
 @login_required(login_url='login')
 def devices_detail(request, pk):
-
-    # if request.user.userprofile.is_creator() or request.user.userprofile.is_admin():
-    #     print("hi1")
-    #     device = get_object_or_404(models.Device, id=pk, created_by=request.user.userprofile)
-    #
-    # if request.user.userprofile.is_broker() or request.user.userprofile.is_user():
-    #     device = get_object_or_404(models.Device, id=pk)
-
     device = get_object_or_404(models.Device, id=pk)
 
     device_parameters = models.DeviceParameter.objects.filter(device=device)
@@ -322,7 +313,7 @@ def add_device_to_system(request, system_id):
         form = AddDeviceToSystemForm(request.POST)
         if form.is_valid():
             system = get_object_or_404(models.System, pk=system_id)
-            form.instance.system = system  # ?
+            form.instance.system = system
             device_id = form.data['device']
             if device_id:
                 device_to_system = form.save()
@@ -384,8 +375,6 @@ def delete_parameter_from_device(request, device_id, parameter_id):
 
     try:
         deviceparameter.delete()
-        # device.parameters.remove(parameter)
-        # parameter.delete()
 
         return redirect('devices_detail', pk=device.id)
     except Exception as e:
@@ -482,9 +471,6 @@ def get_systems_for_user(user: models.User):
 @login_required(login_url='/login/')
 def system_edit(request, pk):
     system = get_object_or_404(models.System, pk=pk)
-    # if not system.users.filter(pk=request.user.pk).exists():
-    #     messages.error(request, "You don't have permission to edit this system.")
-    #     return redirect('systems_list')
 
     edit_form = SystemForm(instance=system)
     invite_form = SendInvitationForm()
@@ -505,7 +491,6 @@ def system_edit(request, pk):
                 username = invite_form.cleaned_data['username']
                 try:
                     user_to_invite = models.UserProfile.objects.get(user__username=username)
-                    # user_to_invite = get_user_model().objects.get(username=username)
                     notification_message = f"You have been invited to {system.name}."
                     invitation = models.Invitation.objects.create(system=system, sender=request.user.userprofile,
                                                                   user_id=user_to_invite.id,
@@ -594,7 +579,6 @@ def parameter_create(request):
         if form.is_valid():
             parameter = form.save()
 
-            # parameters = models.Parameter.objects.all()
             return JsonResponse({'success': True, 'message': 'Parameter created successfully'})
         else:
             print("hello")
@@ -611,8 +595,6 @@ def save_selected_parameters(request):
         selected_parameters = request.POST.getlist('selected_parameters[]', [])
 
         request.session['device_selected_parameters'] = selected_parameters
-
-        # print(request.session['device_selected_parameters'])
 
         return JsonResponse({'success': True, 'message': 'Selected parameters saved successfully'})
     else:

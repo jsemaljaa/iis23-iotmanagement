@@ -5,7 +5,6 @@ from . import views
 # base views
 urlpatterns = [
     path('', views.home, name='home'),
-    # path('create/', views.parameter_create, name='parameter_create')
 ]
 
 # main app logic mapping

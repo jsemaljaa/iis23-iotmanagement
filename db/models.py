@@ -81,7 +81,6 @@ class System(models.Model):
 
 class Notification(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    # user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     message = models.CharField(max_length=255)
     is_read = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -99,11 +98,8 @@ class Notification(models.Model):
 class Invitation(Notification):
     system = models.ForeignKey(System, on_delete=models.CASCADE)
     sender = models.ForeignKey(UserProfile, related_name='sent_invitations', on_delete=models.CASCADE)
-    # sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_invitations', on_delete=models.CASCADE)
     recipient = models.ForeignKey(UserProfile, related_name='received_invitations',
                                   on_delete=models.CASCADE)
-    # recipient = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_invitations',
-    #                               on_delete=models.CASCADE)
 
     def accept(self):
         # Add recipient to the system, mark the notification as read, and delete the invitation
@@ -143,26 +139,3 @@ class DeviceParameter(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='device_with_parameters')
     parameter = models.ForeignKey(Parameter, on_delete=models.CASCADE, related_name='parameter_in_device')
     value = models.IntegerField()
-
-# class KPI(models.Model):
-#     class Function(models.TextChoices):
-#         GT = ">"
-#         GE = ">="
-#         LT = "<"
-#         LE = "<="
-#         EQ = "="
-#         choices = (
-#             (GT, "is greater than"),
-#             (GE, "is greater or equal"),
-#             (LT, "is less than"),
-#             (LE, "is less or equal"),
-#             (EQ, "is equal"),
-#         )
-#
-#     function = models.CharField(choices=Function.choices, default=Function.EQ)
-#     parameter = models.ForeignKey(Parameter, on_delete=models.CASCADE, related_name='parameter')
-
-# TODO ! ! !
-# kpi will look something like
-# if humidity (parameter) > 80 then false
-# idk if we even should implement it like a table
