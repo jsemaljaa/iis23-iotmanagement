@@ -28,6 +28,31 @@ Push local postgresql DB to Heroku (Alina's PowerShell):
 $env:PGUSER="jsemalja"; $env:PGPASSWORD="jsemalja"; heroku pg:push aaa DATABASE_URL -a aaa
 ```
 
+Connect to Heroku PostgreSQL from local CLI
+```Bash
+heroku pg:psql postgresql-corrugated-49852 --app iotmanagement
+```
+
+List of all tables in DB:
+```Bash
+\d
+```
+
+Describe selected table
+```Bash
+\d db_userprofile
+```
+
+Find any value in selected table
+```Bash
+SELECT user_id FROM public.db_userprofile;
+```
+
+Update any value in selected table
+```Bash
+UPDATE public.db_userprofile SET role = 'admin' WHERE user_id = 14;
+```
+
 ### Virtual Environment
 
 To launch virtual environment:
