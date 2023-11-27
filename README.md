@@ -28,6 +28,13 @@ Push local postgresql DB to Heroku (Alina's PowerShell):
 $env:PGUSER="jsemalja"; $env:PGPASSWORD="jsemalja"; heroku pg:push iotmanagement DATABASE_URL -a iotmanagement
 ```
 
+Reset Database
+```Bash
+heroku pg:backups:capture -a iotmanagement
+heroku pg:reset DATABASE_URL -a iotmanagement
+$env:PGUSER="jsemalja"; $env:PGPASSWORD="jsemalja"; heroku pg:push iotmanagement DATABASE_URL -a iotmanagement
+```
+
 Connect to Heroku PostgreSQL from local CLI
 ```Bash
 heroku pg:psql postgresql-corrugated-49852 --app iotmanagement
