@@ -23,6 +23,11 @@ heroku config -s
 heroku pg:push postgres://localhost/iotmanagement postgresql-horizontal-68677
 ```
 
+Push local postgresql DB to Heroku (Alina's PowerShell):
+```Bash
+$env:PGUSER="jsemalja"; $env:PGPASSWORD="jsemalja"; heroku pg:push iotmanagement DATABASE_URL -a iotmanagement
+```
+
 ### Virtual Environment
 
 To launch virtual environment:
