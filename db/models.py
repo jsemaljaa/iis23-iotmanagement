@@ -118,7 +118,7 @@ class Invitation(Notification):
 
     def accept(self):
         # Add recipient to the system, mark the notification as read, and delete the invitation
-        relation = UserSystems(system_id=self.system.id, user_id=self.user.id)
+        relation = UserSystems(system=self.system, user=self.user.userprofile)
         self.system.systems_from_user.add(relation, bulk=False)
         self.is_read = True
         self.message = f"Invitation to {self.system.name} accepted."
