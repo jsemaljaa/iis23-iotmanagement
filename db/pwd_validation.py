@@ -12,3 +12,6 @@ class PwdValidator:
                 _('Password should have 1 to 10 symbols, digits and letters only'),
                 code='pwd',
             )
+
+    def get_help_text(self):
+        return _("Password should have 1 to 10 symbols, digits and letters only")
