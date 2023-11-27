@@ -64,9 +64,9 @@ class Device(models.Model):
 
 class System(models.Model):
     name = models.CharField(max_length=16)
-    description = models.TextField()
     number_of_devices = models.PositiveIntegerField(default=0)
     number_of_users = models.PositiveIntegerField(default=0)
+    description = models.CharField(max_length=255)
     admin = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='system_admin', default=1)
 
     def __str__(self):
@@ -78,7 +78,6 @@ class System(models.Model):
 
 class Notification(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    # user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     message = models.CharField(max_length=255)
     is_read = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -86,6 +85,7 @@ class Notification(models.Model):
     NOTIFICATION_TYPES = [
         ('invitation', 'Invitation'),
         ('system', 'System Notification'),
+        ('access', 'Participation Request')
     ]
     type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='system')
 
@@ -96,34 +96,48 @@ class Notification(models.Model):
 class Invitation(Notification):
     system = models.ForeignKey(System, on_delete=models.CASCADE)
     sender = models.ForeignKey(UserProfile, related_name='sent_invitations', on_delete=models.CASCADE)
-    # sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_invitations', on_delete=models.CASCADE)
     recipient = models.ForeignKey(UserProfile, related_name='received_invitations',
                                   on_delete=models.CASCADE)
-    # recipient = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_invitations',
-    #                               on_delete=models.CASCADE)
 
     def accept(self):
-        # Add recipient to the system, mark the notification as read, and delete the invitation
         relation = UserSystems(system=self.system, user=self.recipient)
-        print(f"system: {self.system}, recipient: {self.recipient}")
         relation.save()
-        # relation = UserSystems(system_id=self.system.id, user_id=self.user.id)
-        # self.system.systems_from_user.add(relation, bulk=False)
         self.is_read = True
         self.message = f"Invitation to {self.system.name} accepted."
         self.save()
         self.delete()
 
     def decline(self):
-        # Mark the notification as read, update the message, and delete the invitation
         self.is_read = True
         self.message = f"Invitation to {self.system.name} declined."
         self.save()
         self.delete()
 
     def __str__(self):
-        # Specific string representation for Invitation instances
         return f"Invitation from {self.sender.username} to {self.recipient.username} for {self.system.name}"
+
+
+class ParticipationRequest(Notification):
+    system = models.ForeignKey(System, on_delete=models.CASCADE)
+    sender = models.ForeignKey(UserProfile, related_name='sent_requests', on_delete=models.CASCADE)
+    recipient = models.ForeignKey(UserProfile, related_name='received_requests',
+                                  on_delete=models.CASCADE)
+    def accept(self):
+        relation = UserSystems(system=self.system, user=self.sender)
+        relation.save()
+        self.is_read = True
+        self.message = f"Access to {self.system.name} accepted."
+        self.save()
+        self.delete()
+
+    def decline(self):
+        self.is_read = True
+        self.message = f"Access to {self.system.name} declined."
+        self.save()
+        self.delete()
+
+    def __str__(self):
+        return f"{self.sender.username} requests an access to {self.system.name}"
 
 
 class SystemDevices(models.Model):

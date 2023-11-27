@@ -3,6 +3,12 @@
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Edit System: {{ system.name }}</h1>
+    <form method="post" class="mt-3">
+    {% csrf_token %}
+    {{ edit_form.as_p }}  <!-- This should display the form fields -->
+    <button type="submit" name="edit_system" class="btn btn-success">Save changes</button>
+    </form>
+
 
     <!-- Users List -->
     <div class="card mb-3">
@@ -10,22 +16,24 @@
             <h2>Users</h2>
         </div>
         <div class="card-body">
-            {% if users %}
-                <ul class="list-group list-group-flush">
-                    {% for user in users %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ user.username }}
-                            <form action="{% url 'remove_user' system_id=system.pk user_id=user.pk %}" method="post" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                            </form>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No users assigned to this system.</p>
-            {% endif %}
-        </div>
+    {% if users %}
+        <ul class="list-group list-group-flush">
+            {% for user in users %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ user.username }}
+                    {% if system.admin_id != user.id %}
+                        <form action="{% url 'remove_user' system_id=system.pk user_id=user.pk %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm" aria-label="Remove {{ user.username }}">Remove</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No users assigned to this system.</p>
+    {% endif %}
+</div>
     </div>
 
     <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#inviteUserModal">Invite User</button>
@@ -81,14 +89,10 @@
             </div>
         </div>
 
-        <!-- Edit System Form -->
-        <form method="post" class="mt-3">
-            {% csrf_token %}
-            <div class="mb-3">
-                {{ form.as_p }}
-            </div>
-            <button type="submit" name="edit_system" class="btn btn-success">Save changes</button>
-        </form>
+        <div class="mt-3">
+        <a href="{% url 'systems_list' %}" class="btn btn-secondary">Back to Systems</a>
+        </div>
+
     </div>
 
 
