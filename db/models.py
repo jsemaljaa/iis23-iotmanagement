@@ -36,6 +36,9 @@ class UserProfile(models.Model):
     def is_broker(self):
         return self.role.lower() == 'broker'
 
+    def is_user(self):
+        return self.role.lower() == 'user'
+
 
 class Parameter(models.Model):
     class PossibleValue(models.TextChoices):

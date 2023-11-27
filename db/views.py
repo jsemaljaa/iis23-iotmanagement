@@ -289,11 +289,14 @@ def devices_delete(request, pk):
 @login_required(login_url='login')
 def devices_detail(request, pk):
 
-    if request.user.userprofile.is_creator() or request.user.userprofile.is_admin():
-        device = get_object_or_404(models.Device, id=pk, created_by=request.user.userprofile)
+    # if request.user.userprofile.is_creator() or request.user.userprofile.is_admin():
+    #     print("hi1")
+    #     device = get_object_or_404(models.Device, id=pk, created_by=request.user.userprofile)
+    #
+    # if request.user.userprofile.is_broker() or request.user.userprofile.is_user():
+    #     device = get_object_or_404(models.Device, id=pk)
 
-    if request.user.userprofile.is_broker() or request.user.userprofile:
-        device = get_object_or_404(models.Device, id=pk)
+    device = get_object_or_404(models.Device, id=pk)
 
     device_parameters = models.DeviceParameter.objects.filter(device=device)
 
@@ -398,6 +401,8 @@ def system_create(request):
 
             user = request.user.userprofile
             user.role = 'creator'
+
+            user.save()
 
             new_system.admin = user
             new_system.save()

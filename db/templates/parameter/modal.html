@@ -12,7 +12,6 @@
       </div>
 
       <div class="modal-body">
-        <!-- Display error message if there is one -->
         {% if error_message %}
           <div class="alert alert-danger" role="alert">
             {{ error_message }}
@@ -30,7 +29,6 @@
                     <button class="btn btn-danger" onclick="deleteParameter('{{ parameter.id }}');">Delete</button>
                   {% endif %}
                 </div>
-                <!-- Add a checkbox overlay -->
                 <div class="custom-control custom-checkbox position-relative m-2" style="top: 0; left: 0;">
                   <input type="checkbox" class="custom-control-input" id="checkbox{{ parameter.id }}" onclick="toggleParameterSelection('{{ parameter.id }}');">
                   <label class="custom-control-label" for="checkbox{{ parameter.id }}"></label>
@@ -47,7 +45,6 @@
 
         <hr class="my-4">
         <h5>Create New Parameter</h5>
-        <!-- Form for creating a new parameter -->
         {% if error_message_parameters %}
         <div class="alert alert-danger" role="alert">
           {{ error_message_parameters }}
@@ -55,7 +52,6 @@
         {% endif %}
         <form method="post" action="{% url 'parameter_create' %}" id="parameterForm">
           {% csrf_token %}
-          <!-- Display form errors if there are any -->
           {% if error_message %}
             <div class="alert alert-danger" role="alert">
               {{ error_message }}
@@ -86,8 +82,6 @@
 <script>
   var selectedParameters = [];
   function toggleParameterSelection(parameterId) {
-
-    // Toggle the parameter in the selectedParameters array
     var index = selectedParameters.indexOf(parameterId);
     if (index === -1) {
       selectedParameters.push(parameterId);
@@ -97,7 +91,6 @@
   }
   function saveSelectedParameters() {
 
-    // Collect the selected parameter IDs
     $.ajax({
         type: "POST",
         url: "{% url 'save_selected_parameters' %}",
@@ -109,8 +102,6 @@
         success: function (response) {
             if (response.success) {
                 // alert("Selected parameters saved successfully.");
-                // Save selected parameters to the device
-                // saveParametersToDevice(response.device_id, selectedParameters);
             } else {
                 alert("Error saving selected parameters: " + response.message);
             }
@@ -120,8 +111,6 @@
         }
     });
 
-
-    // Close the modal or perform other actions
     $("#parameterModal").modal("hide");
   }
   function deleteParameter(parameterId) {

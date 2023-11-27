@@ -38,7 +38,9 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ parameter.name }}</h5>
                         <p class="card-text">{{ parameter.get_possible_values_display }}</p>
-                        <p class="card-text">Current Value: <span id="value{{ parameter.id }}">{{ value }}</span></p>
+                        {% if request.user.userprofile == device.created_by or request.user.userprofile.is_admin %}
+                            <p class="card-text">Current Value: <span id="value{{ parameter.id }}">{{ value }}</span></p>
+                        {% endif %}
                         {% if request.user.userprofile.is_broker %}
                             <div class="alert alert-danger" id="error-message{{ parameter.id }}" style="display: none;"></div>
                             <div class="form-group">
@@ -63,36 +65,7 @@
 </div>
 
 <script>
-    function deleteParameter(deviceId, parameterId) {
-    var confirmDelete = confirm("Are you sure you want to delete this parameter?");
-
-    if (confirmDelete) {
-        $.ajax({
-            type: 'POST',
-            url: `/devices/${deviceId}/parameters/${parameterId}/delete/`,
-            data: {
-                csrfmiddlewaretoken: '{{ csrf_token }}',
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    // Optionally, you can remove the card from the UI
-                    // Update the UI as needed
-                    // ...
-                } else {
-                    console.log(response.error_message);
-                    alert('Error deleting parameter: ' + response.error_message);
-                }
-            },
-            error: function(error) {
-                alert('Error deleting parameter: ' + error.responseText);
-            }
-        });
-    }
-}
-
     function updateValue(parameterId, deviceId, parameterValues) {
-        // Get the new value from the input field
         var newValue = $('#new_value' + parameterId).val();
 
         if (newValue.trim() === '') {
