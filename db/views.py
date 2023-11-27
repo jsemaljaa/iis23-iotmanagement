@@ -445,7 +445,6 @@ def system_delete(request, pk):
     return render(request, 'system_delete.html', context)
 
 
-@login_required(login_url='/login/')
 def system_detail(request, pk):
     system = get_object_or_404(models.System, pk=pk)
     devices = get_devices_for_system(system)

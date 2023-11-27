@@ -95,6 +95,23 @@ class UserProfileEditForm(forms.ModelForm):
         for field in self.fields.values():
             field.required = False
 
+        self.fields['name'].widget = forms.TextInput(attrs={
+            'placeholder': '(optional)',
+            'required': False
+        })
+        self.fields['surname'].widget = forms.TextInput(attrs={
+            'placeholder': '(optional)',
+            'required': False
+        })
+        self.fields['location'].widget = forms.TextInput(attrs={
+            'placeholder': '(optional)',
+            'required': False
+        })
+        self.fields['email'].widget = forms.EmailInput(attrs={
+            'placeholder': '(optional)',
+            'required': False
+        })
+
 
 class DeviceForm(forms.ModelForm):
     class Meta:

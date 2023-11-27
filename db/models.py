@@ -142,11 +142,6 @@ class SystemDevices(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='devices_in_system')
 
 
-class UserDevices(models.Model):
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_with_devices')
-    device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='devices_from_user')
-
-
 class UserSystems(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_with_systems')
     system = models.ForeignKey(System, on_delete=models.CASCADE, related_name='systems_from_user')

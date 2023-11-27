@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'db.apps.DbConfig',
     'django.forms',
-    'django_filters', # Django-filter
+    'django_filters',
     'crispy_forms',
 ]
 
@@ -77,8 +77,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'iotmanagement.wsgi.application'
 
+WSGI_APPLICATION = 'iotmanagement.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

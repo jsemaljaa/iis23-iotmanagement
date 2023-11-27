@@ -17,26 +17,24 @@
 
     <div class="row" id="searchResults">
         {% for device in devices %}
-            {% if device.created_by == request.user.userprofile or request.user.userprofile.is_broker %}
-                <div class="col-md-6 mb-3" id="deviceCard{{ device.id }}">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">{{ device.identifier }}</h4>
-                            <a href="{% url 'devices_detail' pk=device.id %}" class="btn btn-info">
-                                {% if request.user.userprofile.is_broker %}
-                                    Update Parameters
-                                {% else %}
-                                    Details
-                                {% endif %}
-                            </a>
-                            {% if not request.user.userprofile.is_broker %}
-                                <a href="{% url 'devices_edit' pk=device.id %}" class="btn btn-warning">Edit</a>
-                                <button type="button" class="btn btn-danger" onclick="deleteDevice({{ device.id }})">Delete</button>
-                            {% endif %}
-                        </div>
-                    </div>
+        <div class="col-md-6 mb-3" id="deviceCard{{ device.id }}">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">{{ device.identifier }}</h4>
+                    <a href="{% url 'devices_detail' pk=device.id %}" class="btn btn-info">
+                        {% if request.user.userprofile.is_broker %}
+                            Update Parameters
+                        {% else %}
+                            Details
+                        {% endif %}
+                    </a>
+                    {% if device.created_by == request.user.userprofile or request.user.userprofile.is_admin %}
+                        <a href="{% url 'devices_edit' pk=device.id %}" class="btn btn-warning">Edit</a>
+                        <button type="button" class="btn btn-danger" onclick="deleteDevice({{ device.id }})">Delete</button>
+                    {% endif %}
                 </div>
-            {% endif %}
+            </div>
+        </div>
         {% empty %}
             <div class="col-md-12">
                 <p class="mt-3">No devices found.</p>

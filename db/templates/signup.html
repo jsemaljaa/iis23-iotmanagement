@@ -7,6 +7,16 @@
     <form method="post" action="{% url 'signup' %}">
       {% csrf_token %}
 
+      {% if user_profile_form.errors %}
+        <div class="alert alert-danger">
+            {% for field, errors in user_profile_form.errors.items %}
+              {% for error in errors %}
+                {{ error }}
+              {% endfor %}
+            {% endfor %}
+        </div>
+      {% endif %}
+
       <div class="form-group">
         {{ user_profile_form.username.label_tag }}
         {{ user_profile_form.username }}
