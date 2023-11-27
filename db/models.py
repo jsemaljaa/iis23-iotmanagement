@@ -145,7 +145,20 @@ class SystemDeviceParameters(models.Model):
     class Meta:
         unique_together = (('device', 'parameter', 'system'),)
 
+    GT = ">"
+    GE = ">="
+    LT = "<"
+    LE = "<="
+    EQ = "="
+    choices = (
+        (GT, "is greater than"),
+        (GE, "is greater or equal"),
+        (LT, "is less than"),
+        (LE, "is less or equal"),
+        (EQ, "is equal"),
+    )
     device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='device_with_parameters_in_system')
     parameter = models.ForeignKey(Parameter, on_delete=models.CASCADE, related_name='parameter_in_device_in_system')
     system = models.ForeignKey(System, on_delete=models.CASCADE, related_name='system_with_devices_with_parameters')
     value = models.IntegerField()
+    operator = models.CharField(choices=choices, default=GT)
