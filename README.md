@@ -84,3 +84,7 @@ To run the server for whole local network
 ```Bash
 python manage.py runserver 0.0.0.0:8000
 ```
+
+```Bash
+py manage.py graph_models -a > erd.dot && py manage.py graph_models --pydot -a -g -o erd.png
+```
