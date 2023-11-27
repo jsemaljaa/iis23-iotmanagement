@@ -1,3 +1,5 @@
+import json
+
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login as auth_login, logout as auth_logout
@@ -5,8 +7,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-
 from .forms import *
+from django.forms.models import model_to_dict
+
 
 
 # Misc helpers for views
@@ -450,16 +453,22 @@ def system_detail(request, pk):
     system = get_object_or_404(models.System, pk=pk)
 
     devices = get_devices_for_system(system)
-    invite_form = SendInvitationForm()
-
     devices_with_parameters = []
 
     for device in devices:
         device_parameters = models.DeviceParameter.objects.filter(device=device)
-
+        parameters_in_system = get_system_parameters_by_device_id(device.id, system.id)
+        status = True
+        for param in parameters_in_system:
+            for device_param in device_parameters:
+                if device_param.parameter_id == param.parameter_id:
+                    if not compare_expected_params(device_param, param):
+                        status = False
+        # Combine the device with its parameters and values
         device_with_parameters = {
             'device': device,
-            'parameters': device_parameters
+            'parameters': device_parameters,
+            'status': status
         }
 
         devices_with_parameters.append(device_with_parameters)
@@ -487,6 +496,31 @@ def get_systems_for_user(user: models.User):
     systems_ids = models.UserSystems.objects.filter(user_id=user.pk).values('system_id')
     return models.System.objects.filter(pk__in=systems_ids)
 
+
+def get_parameters_by_device_id(device_id):
+    parameter_ids = models.DeviceParameter.objects.filter(device_id=device_id).values('parameter_id')
+    return models.Parameter.objects.filter(pk__in=parameter_ids)
+
+@login_required
+def add_params_to_system(request, system_id, device_id):
+    data = json.loads(request.POST['data'])
+    for param in data['parameters']:
+        models.SystemDeviceParameters.objects.update_or_create(device_id=device_id, system_id=system_id,
+                                                               parameter_id=param['id'],
+                                                               defaults={'value': param['value'],
+                                                                         'operator': param['operator']})
+    return JsonResponse({'success': True, 'message': 'System parameters saved successfully'})
+
+
+@login_required()
+def get_device_params(request, device_id):
+    params = get_parameters_by_device_id(device_id)
+    params_dicts = map(model_to_dict, list(params))
+    return JsonResponse({'success': True, 'parameters': list(params_dicts)})
+
+
+def get_system_parameters_by_device_id(device_id, system_id):
+    return models.SystemDeviceParameters.objects.filter(device_id=device_id, system_id=system_id)
 
 
 @login_required(login_url='/login/')
@@ -535,6 +569,22 @@ def system_edit(request, pk):
         'users': users
     })
 
+
+operators_to_actions = {
+    '>': (lambda actual, expected: actual > expected),
+    '>=': (lambda actual, expected: actual >= expected),
+    '<': (lambda actual, expected: actual < expected),
+    '<=': (lambda actual, expected: actual <= expected),
+    '=': (lambda actual, expected: actual == expected)
+}
+
+
+def compare_expected_params(actual_param, expected):
+    actual_value = int(actual_param.value)
+    expected_value = int(expected.value)
+    return operators_to_actions[expected.operator](actual_value, expected_value)
+
+
 @login_required
 def request_participation(request, system_id):
     system = get_object_or_404(models.System, id=system_id)
@@ -546,7 +596,7 @@ def request_participation(request, system_id):
                                                                   recipient=owner,
                                                                   user=owner, message=notification_message,
                                                                   is_read=False,
-                                                                  type='request')
+                                                                  type='access')
     return redirect('system_detail', pk=system_id)
 
 @login_required(login_url='/login/')

@@ -51,6 +51,10 @@
                     {% for device in devices %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             {{ device.identifier }}
+                            <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#editDeviceModal"
+                                        onclick="fillParameters({{ device.pk }})">
+                                    Edit
+                                </button>
                             <form action="{% url 'remove_device' system_id=system.pk device_id=device.pk %}" method="post" class="d-inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger btn-sm">Remove</button>
@@ -139,4 +143,123 @@
             </div>
         </div>
     </div>
+<div class="modal fade" id="editDeviceModal" tabindex="-1" role="dialog" aria-labelledby="editDeviceModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editDeviceModalLabel">Edit device parameters</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <!-- Devices List -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h2>Parameters</h2>
+                        </div>
+                        <div class="card-body">
+                            <ul id='paramList' class="list-group list-group-flush">
+                            </ul>
+                            <button type="submit" class="btn btn-primary" data-dismiss="modal"
+                                    onclick="addParametersToSystem({{ system.pk }})">Save
+                                changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="application/javascript">
+        function addParametersToSystem(systemId) {
+            let children = $("#paramList").children();
+            let deviceId;
+            let paramsData = children.map((_, i) => {
+                    let input = $(i).find('input');
+                    let select = $(i).find('select');
+                    let ids = input.attr('id').split('|');
+                    deviceId = ids[1]; // :)
+                    return ({
+                        'id': ids[0],
+                        'operator': select.val(),
+                        'value': input.val()
+                    })
+                }
+            ).get();
+
+            let data = ({
+                'parameters': paramsData
+            });
+            $.ajax({
+                type: 'POST',
+                url: `/systems/${systemId}/devices/${deviceId}/add-parameters`,
+                data: {
+                    data: JSON.stringify(data),
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                dataType: 'json',
+                success: () => {
+                },
+                error: () => {
+                }
+            });
+            $('#paramList').empty();
+
+        }
+
+
+        function fillParameters(deviceId) {
+            $('#paramList').empty();
+
+            $.ajax({
+                type: 'GET',
+                url: `/devices/${deviceId}/parameters`,
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: (response) => {
+                    console.log(response)
+                    let paramList = $('#paramList');
+                    response.parameters.forEach(p => {
+                        paramList.append
+                        (
+                            `<li id="${p.id}" class="list-group-item d-flex justify-content-between align-items-center">
+<div>
+<p>${p.name} | ${p.possible_values}</p>
+</div>
+<div>
+<select id="${p.id}">
+    <option>></option>
+    <option>>=</option>
+    <option><</option>
+    <option><=</option>
+    <option>=</option>
+</select>
+</div>
+<div>
+<input id="${p.id}|${deviceId}" type="text" placeholder="Expected value" required>
+</div>
+                    </li>`)
+                    })
+                },
+                error: () => {
+                }
+            });
+            {#let params = [{#}
+            {#    "id": 1,#}
+            {#    "name": "aa",#}
+            {#    "possibleValues": "N"#}
+                {#    {#}
+                {#        "id": 2,#}
+                {#        "name": "bnb",#}
+                {#        "possibleValues": "P"#}
+                {#    }]#}
+
+        }
+    </script>
 {% endblock %}
