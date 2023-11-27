@@ -8,6 +8,7 @@ from django.contrib.postgres.fields import JSONField
 
 # Create your models here.
 
+
 class UserProfile(models.Model):
     ROLE_CHOICES = [
         ('admin', 'Admin'),
@@ -69,14 +70,15 @@ class System(models.Model):
     admin = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='system_admin', default=1)
 
     def __str__(self):
-        return f"{self.name} {self.admin.user.username} ({self.role})"
+        return f"{self.name} {self.admin.user.username}"
 
     def get_absolute_url(self):
         return reverse('system_detail', args=[str(self.pk)])
 
 
 class Notification(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    # user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     message = models.CharField(max_length=255)
     is_read = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -93,14 +95,20 @@ class Notification(models.Model):
 
 class Invitation(Notification):
     system = models.ForeignKey(System, on_delete=models.CASCADE)
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_invitations', on_delete=models.CASCADE)
-    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_invitations',
+    sender = models.ForeignKey(UserProfile, related_name='sent_invitations', on_delete=models.CASCADE)
+    # sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_invitations', on_delete=models.CASCADE)
+    recipient = models.ForeignKey(UserProfile, related_name='received_invitations',
                                   on_delete=models.CASCADE)
+    # recipient = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_invitations',
+    #                               on_delete=models.CASCADE)
 
     def accept(self):
         # Add recipient to the system, mark the notification as read, and delete the invitation
-        relation = UserSystems(system=self.system, user=self.user.userprofile)
-        self.system.systems_from_user.add(relation, bulk=False)
+        relation = UserSystems(system=self.system, user=self.recipient)
+        print(f"system: {self.system}, recipient: {self.recipient}")
+        relation.save()
+        # relation = UserSystems(system_id=self.system.id, user_id=self.user.id)
+        # self.system.systems_from_user.add(relation, bulk=False)
         self.is_read = True
         self.message = f"Invitation to {self.system.name} accepted."
         self.save()

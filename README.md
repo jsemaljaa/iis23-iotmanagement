@@ -25,7 +25,7 @@ heroku pg:push postgres://localhost/aaa postgresql-horizontal-68677
 
 Push local postgresql DB to Heroku (Alina's PowerShell):
 ```Bash
-$env:PGUSER="jsemalja"; $env:PGPASSWORD="jsemalja"; heroku pg:push aaa DATABASE_URL -a aaa
+$env:PGUSER="jsemalja"; $env:PGPASSWORD="jsemalja"; heroku pg:push iotmanagement DATABASE_URL -a iotmanagement
 ```
 
 Connect to Heroku PostgreSQL from local CLI

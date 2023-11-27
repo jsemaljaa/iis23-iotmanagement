@@ -4,14 +4,13 @@
 
 {% block content %}
     <div class="container mt-4">
-        <h1 class="mb-3">Search Home by Name</h1>
 
+        <h1 class="mb-3">Search Home by Name</h1>
         <!-- Search Form -->
         <div class="mb-4">
             <form method="GET" action="{% url 'systems_list' %}" class="form-inline">
                 <div class="form-group">
-                    <input type="text" name="q" class="form-control" placeholder="Search by home name"
-                           value="{{ query }}">
+                    <input type="text" name="q" class="form-control" placeholder="Search by home name" value="{{ query }}">
                     <label>
                         Show all systems
                         <input type="checkbox"
@@ -36,18 +35,16 @@
                             <h5 class="card-title">{{ system.name }}</h5>
                             <p class="card-text">Owner: {{ system.admin.user.username }}</p>
                             <a href="{% url 'system_detail' pk=system.pk %}" class="btn btn-info">Details</a>
-                            {% if system.admin.user == request.user %}
-
+                            {% if system.admin.user == request.user or request.user.userprofile.is_admin%}
                                 {% if user.is_authenticated %}
                                     <a href="{% url 'system_edit' pk=system.pk %}" class="btn btn-warning">Edit</a>
                                     <a href="{% url 'system_delete' pk=system.pk %}" class="btn btn-danger">Delete</a>
                                 {% endif %}
                             {% endif %}
-
                         </div>
                     </div>
                 </div>
-                {% empty %}
+            {% empty %}
                 <p>No homes found.</p>
             {% endfor %}
         </div>

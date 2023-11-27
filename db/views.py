@@ -395,9 +395,14 @@ def system_create(request):
         form = CreateHomeForm(request.POST)
         if form.is_valid():
             new_system = form.save(commit=False)
-            new_system.admin = request.user.userprofile
+
+            user = request.user.userprofile
+            user.role = 'creator'
+
+            new_system.admin = user
             new_system.save()
-            models.UserSystems.objects.create(user=request.user.userprofile, system=new_system)
+
+            models.UserSystems.objects.create(user=user, system=new_system)
             return redirect('systems_list')
     else:
         form = CreateHomeForm()
@@ -460,6 +465,7 @@ def get_devices_for_system(system: models.System):
 
 def get_users_for_system(system: models.System):
     users_ids = models.UserSystems.objects.filter(system=system).values('user_id')
+    print(users_ids)
     return models.User.objects.filter(pk__in=users_ids)
 
 
@@ -493,10 +499,10 @@ def system_edit(request, pk):
             if invite_form.is_valid():
                 username = invite_form.cleaned_data['username']
                 try:
-
-                    user_to_invite = get_user_model().objects.get(username=username)
+                    user_to_invite = models.UserProfile.objects.get(user__username=username)
+                    # user_to_invite = get_user_model().objects.get(username=username)
                     notification_message = f"You have been invited to {system.name}."
-                    invitation = models.Invitation.objects.create(system=system, sender=request.user,
+                    invitation = models.Invitation.objects.create(system=system, sender=request.user.userprofile,
                                                                   user_id=user_to_invite.id,
                                                                   recipient=user_to_invite,
                                                                   user=user_to_invite, message=notification_message,
@@ -523,6 +529,7 @@ def accept_invitation(request, notification_id):
     notification = get_object_or_404(models.Notification, id=notification_id)
     invitation = notification.invitation
     if request.method == 'POST':
+        user_accepting = request.user.userprofile
         invitation.accept()
         models.Notification.objects.create(user=invitation.sender,
                                            message=f"Your invitation for {invitation.recipient} has been accepted.")
@@ -543,7 +550,7 @@ def decline_invitation(request, notification_id):
 @login_required(login_url='/login/')
 def notifications(request):
     notifications = models.Notification.objects.filter(
-        user=request.user,
+        user=request.user.userprofile,
         is_read=False
     )
     return render(request, 'notifications.html', {'notifications': notifications})
@@ -551,7 +558,7 @@ def notifications(request):
 
 @login_required(login_url='/login/')
 def delete_notification(request, notification_id):
-    notification = get_object_or_404(models.Notification, id=notification_id, user=request.user)
+    notification = get_object_or_404(models.Notification, id=notification_id, user=request.user.userprofile)
 
     if request.method == 'POST':
         notification.delete()

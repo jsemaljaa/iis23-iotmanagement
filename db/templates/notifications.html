@@ -9,7 +9,7 @@
                     <div>
                         <h5 class="mb-1">{{ notification.message }}</h5>
                         {% if notification.type == 'invitation' %}
-                            <p class="mb-1"><small>From: {{ notification.invitation.sender.username }}</small></p>
+                            <p class="mb-1"><small>From: {{ notification.invitation.sender.user.username }}</small></p>
                         {% endif %}
                     </div>
                     <small>{{ notification.timestamp|timesince }} ago</small>

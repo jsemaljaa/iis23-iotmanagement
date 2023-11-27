@@ -37,11 +37,6 @@ class ParameterForm(forms.ModelForm):
 
 
 class UserProfileForm(UserCreationForm):
-    # name = forms.CharField(max_length=50)
-    # surname = forms.CharField(max_length=50)
-    # location = forms.CharField(max_length=100)
-    # email = forms.EmailField(max_length=50)
-
     class Meta:
         model = User
         fields = [
