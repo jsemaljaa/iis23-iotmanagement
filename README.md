@@ -1,32 +1,7 @@
-# TODO's Alina
-* test stuff
-* create sql script to fill the database with reference data
-
-
 # Documentation
 
 ## Prerequesites
-
-### Heroku
-Install Heroku Command Line Interface: https://devcenter.heroku.com/articles/heroku-cli  
-  
-Usage: when in root folder
-```Bash
-heroku login
-heroku git:remote -a iot-management
-```
-Useful Heroku commands
-```Bash
-# app's configuration key-values
-heroku config -s
-#
-heroku pg:push postgres://localhost/iotmanagement postgresql-horizontal-68677
-```
-
-Push local postgresql DB to Heroku (Alina's PowerShell):
-```Bash
-$env:PGUSER="jsemalja"; $env:PGPASSWORD="jsemalja"; heroku pg:push iotmanagement DATABASE_URL -a iotmanagement
-```
+Some prerequesites to launch a local server with the app
 
 ### Virtual Environment
 
@@ -35,10 +10,20 @@ To launch virtual environment:
 env\Scripts\activate
 ```
 
-Generate secret key for .env:
-```Bash
-python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-```
+<details>
+  <summary>In iotmanagement/iotmanagement folder create an .env file</summary>
+
+  ```
+  SECRET_KEY=django-insecure-(wn%etwu$e6eruy1-%z(zn!&=rrz_ozacc-_b64j8v(1qenrfm
+  DB_NAME=
+  DB_USER=
+  DB_PASSWORD=
+  DB_HOST=localhost
+  DB_PORT=5432
+
+  # Fill all the necessary data to be able to connect to your local PostgreSQL database
+  ```
+</details>
 
 ### PostgreSQL
 To reach postgresql in CLI
